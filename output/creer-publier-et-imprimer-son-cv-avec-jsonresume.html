@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Créer, publier et imprimer son CV avec JsonResume | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/creer-publier-et-imprimer-son-cv-avec-jsonresume.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Automatiser la production de son CV">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Créer, publier et imprimer son CV avec JsonResume
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/devops.html">Devops</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/cicd.html">#CI/CD</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <p>Quelques prérequis:</p>
+<ul>
+<li>un bucket S3 (sur n'importe quel service compatible)</li>
+<li>une instance Gitlab fonctionnelle</li>
+<li>un <a href="https://www.sheevaboite.fr/articles/installer-gitlab-ci-moins-5-minutes-docker/">runner Gitlab</a></li>
+<li>Docker ou Podman</li>
+<li>un nom de domaine</li>
+<li>un compte AWS</li>
+</ul>
+<h1>Premiére méthode: gitlab-ci</h1>
+<h2>I- Édition d'un fichier resume.json</h2>
+<p>Pour commencer il faut d'abord éditer un fichier resume.json, qui contient toutes les données de son CV, vous trouverez ici <a href="https://gist.github.com/ishu3101/36186df161316ec00519389b9deec690">un exemple</a> propre.</p>
+<p>Globalement, faites attention à la <a href="https://gist.github.com/mattcone/ec8057127a0ff2e0b45d2cde14355b2a">syntaxe JSON</a> et aux alignements, et respectez le nom des catégories, pour évitez des erreurs. L'utilisation d'un vérificateur de syntaxe JSON est recommandée.</p>
+<p>Un exemple avec mon <a href="https://gitlab.sourdin.ovh/sitespro/website/-/raw/main/resume.json">fichier resume.json</a> (un peu abrégé):</p>
+<div class="highlight"><pre><span></span><code><span class="err">{</span>
+<span class="err">  &quot;basics&quot;: {</span>
+<span class="err">    &quot;name&quot;: &quot;Maxime SOURDIN&quot;,</span>
+<span class="err">    &quot;label&quot;: &quot;21 years old, apprenticeship  at OBS (cloud specialist)&quot;,</span>
+<span class="err">    &quot;picture&quot;: &quot;profile.jpeg&quot;,</span>
+<span class="err">    &quot;email&quot;: &quot;maxime@sourdin.ovh&quot;,</span>
+<span class="err">    &quot;phone&quot;: &quot;+33630158452&quot;,</span>
+<span class="err">    &quot;website&quot;: &quot;https://maxime.sourdin.ovh&quot;,</span>
+<span class="err">    &quot;location&quot;: {</span>
+<span class="err">      &quot;address&quot;: &quot;33 Rue de la Grande Fontaine&quot;,</span>
+<span class="err">      &quot;postalCode&quot;: &quot;35490&quot;,</span>
+<span class="err">      &quot;city&quot;: &quot;Romazy&quot;,</span>
+<span class="err">      &quot;countryCode&quot;: &quot;FR&quot;,</span>
+<span class="err">      &quot;region&quot;: &quot;Bretagne&quot;</span>
+<span class="err">    },</span>
+<span class="err">    &quot;profiles&quot;: [</span>
+<span class="err">      {</span>
+<span class="err">        &quot;network&quot;: &quot;Shaarli&quot;,</span>
+<span class="err">        &quot;iconClass&quot;: &quot;fa fa-shaarli-square&quot;,</span>
+<span class="err">        &quot;url&quot;: &quot;https://links.maxime.sourdin.ovh&quot;</span>
+<span class="err">      }</span>
+<span class="err">    ]</span>
+<span class="err">  },</span>
+<span class="err">  &quot;work&quot;: [{</span>
+<span class="err">      &quot;position&quot;: &quot;Apprenticeship at OBS&quot;,</span>
+<span class="err">      &quot;startDate&quot;: &quot;2020-09&quot;,</span>
+<span class="err">      &quot;summary&quot;: &quot;Automated test chain: Ansible, AWX, Gitlab-ci, Flexible Engine&quot;,</span>
+<span class="err">      &quot;highlights&quot;: [</span>
+<span class="err">      ]</span>
+<span class="err">    }</span>
+<span class="err">  ],</span>
+<span class="err">  &quot;education&quot;: [</span>
+<span class="err">    {</span>
+<span class="err">      &quot;institution&quot;: &quot;CNAM &amp; OBS&quot;,</span>
+<span class="err">      &quot;area&quot;: &quot;Cloud specialist&quot;,</span>
+<span class="err">      &quot;startDate&quot;: &quot;2020-09&quot;,</span>
+<span class="err">      &quot;studyType&quot;: &quot;Engineer school&quot;</span>
+<span class="err">    }</span>
+<span class="err">  ],</span>
+<span class="err">  &quot;skills&quot;: [</span>
+<span class="err">    {</span>
+<span class="err">      &quot;name&quot;: &quot;Devops&quot;,</span>
+<span class="err">      &quot;keywords&quot;: [</span>
+<span class="err">        &quot;Ansible&quot;,</span>
+<span class="err">        &quot;AWX&quot;,</span>
+<span class="err">        &quot;Gitlab&quot;,</span>
+<span class="err">        &quot;CI/CD&quot;,</span>
+<span class="err">        &quot;Docker&quot;,</span>
+<span class="err">        &quot;Podman&quot;,</span>
+<span class="err">        &quot;Docker Swarm&quot;</span>
+<span class="err">      ]</span>
+<span class="err">    }</span>
+<span class="err">  ],</span>
+<span class="err">  &quot;languages&quot;: [</span>
+<span class="err">    {</span>
+<span class="err">      &quot;language&quot;: &quot;English&quot;,</span>
+<span class="err">      &quot;level&quot;: &quot;TOEIC: 620&quot;,</span>
+<span class="err">      &quot;fluency&quot;: &quot;TOEIC: 620&quot;</span>
+<span class="err">    }</span>
+<span class="err">  ]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h2>II- Choix d'un thème JSONResume</h2>
+<p>Vous pouvez trouvez des thèmes n'importe où, <a href="https://www.npmjs.com/search?q=jsonresume-theme">beaucoup sont installables directement</a> via le gestionnaire de paquets nodeJS. Sinon, beaucoup sont trouvables sur Github, et installables plutôt facilement. Dans tout les cas, ce ne sera pas un soucis pour la suite.</p>
+<p>Dans mon cas, j'ai cloné le code du <a href="https://github.com/rbardini/jsonresume-theme-even">thème "Even"</a>,  dont j'ai seulement modifié les couleurs pour le rendre plus accessible aux personnes malvoyantes.</p>
+<p>Le code est disponible <a href="https://gitlab.sourdin.ovh/sitespro/website">ici</a> (oui c'est en vrac).</p>
+<h2>III- Compilation de l'image Docker de l'export en PDF</h2>
+<p>J'ai utilisé le travail de <a href="https://github.com/pinkeen/docker-html-to-pdf">pinkeen</a> et ait recompilé l'image de mon côté, en mettant à jour juste quelques dépendances (<a href="https://gitlab.sourdin.ovh/sitespro/docker-html-to-pdf">c'est stocké sur mon gitlab</a>).</p>
+<p>Vous pouvez cloner mon repository et ajuster certaines valeurs:</p>
+<div class="highlight"><pre><span></span><code><span class="err">git clone https://gitlab.sourdin.ovh/sitespro/docker-html-to-pdf</span>
+<span class="err">cd docker-html-to-pdf</span>
+</code></pre></div>
+
+<p>Il s'agit surtout du fichier Dockerfile à modifier:</p>
+<div class="highlight"><pre><span></span><code>FROM alpine:latest
+RUN apk update \
+   <span class="err">&amp;&amp;</span> apk add --no-cache \
+     chromium \
+     nodejs \
+     npm \
+     sed \
+     bash \
+     procps
+RUN npm install -g \
+     chrome-headless-render-pdf \
+     node-static
+COPY entrypoint.bash /usr/local/bin/entrypoint
+COPY chrome-wrapper.bash /usr/local/bin/chrome-wrapper
+RUN mkdir /tmp/html-to-pdf \
+   <span class="err">&amp;&amp;</span> chmod +x /usr/local/bin/*
+ARG WORKDIR=&quot;/builds/sitespro/website/public&quot;
+ENV WORKDIR=&quot;<span class="cp">${</span><span class="n">WORKDIR</span><span class="cp">}</span>&quot;
+WORKDIR &quot;<span class="cp">${</span><span class="n">WORKDIR</span><span class="cp">}</span>&quot;
+ENTRYPOINT [ &quot;/usr/local/bin/entrypoint&quot; ]
+</code></pre></div>
+
+<p>La partie à modifier est celle-ci. C'est normalement une mauvaise pratique, vu que l'image Docker ne sera pas vraiment réutilisable, mais c'est vraiment par facilité ici.</p>
+<div class="highlight"><pre><span></span><code><span class="err">    ARG WORKDIR=&quot;/builds/sitespro/website/public&quot;</span>
+</code></pre></div>
+
+<p>Il suffit de suivre cette forme:</p>
+<div class="highlight"><pre><span></span><code><span class="err">ARG WORKDIR=&quot;/builds/$NOMUTILISATEUR·ICE ou GROUPE/$NOM DU REPO/public&quot;</span>
+</code></pre></div>
+
+<p>Enfin, il suffit de compiler l'image Docker qui va bien, et si vous la créez à distance, la push:</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker build -t monrepo/htmltopdf .</span>
+<span class="err">docker push monrepo/htmltopdf</span>
+</code></pre></div>
+
+<p>Sur un Mac M1, pour la build (testé de mon côté sur un Mini M1, avec absolument aucun probléme de build) :</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker buildx build --platform linux/amd64 -t monrepo/htmltopdf --push .</span>
+</code></pre></div>
+
+<h2>IV- Configuration d'un bucket S3 et édition de la chaîne CI</h2>
+<h3>A- S3</h3>
+<p>Pensez tout d'abord à créer un repository Gitlab vide. Il va falloir renseignez quelques variables (protégées et masquées) pour pouvoir stocker les fichiers sur S3, toutefois, cette méthode est discutable niveau sécurité:</p>
+<ul>
+<li>BUCKET_NAME (le nom du bucket, qui sera accessible en public)</li>
+<li>AWS_ACCESS_KEY_ID (l'identifiant de l'utilisateur·ice)</li>
+<li>AWS_DEFAULT_REGION (la région du bucket)</li>
+<li>AWS_SECRET_ACCESS_KEY (l'access key pour l'utilisateur·ice)</li>
+<li>COMPILATIONPATH (l'emplacement du code: soit   <code>/builds/$NOMUTILISATEUR·ICE ou GROUPE/$NOM DU REPO/</code> )</li>
+<li>IMAGE (le nom de l'image compilée précédemment)</li>
+</ul>
+<p>Un exemple de stratégie IAM pour gérer le bucket:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:GetObject&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:DeleteObject&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:ListBucketMultipartUploads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:AbortMultipartUpload&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:ListMultipartUploadParts&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket&quot;</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:ListBucketMultipartUploads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:AbortMultipartUpload&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:ListMultipartUploadParts&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket&quot;</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Et la stratégie de bucket:</p>
+<div class="highlight"><pre><span></span><code><span class="err">{</span>
+<span class="err">    &quot;Version&quot;: &quot;2012-10-17&quot;,</span>
+<span class="err">    &quot;Statement&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">            &quot;Sid&quot;: &quot;PublicReadGetObject&quot;,</span>
+<span class="err">            &quot;Effect&quot;: &quot;Allow&quot;,</span>
+<span class="err">            &quot;Principal&quot;: &quot;*&quot;,</span>
+<span class="err">            &quot;Action&quot;: [</span>
+<span class="err">                &quot;s3:GetObject&quot;,</span>
+<span class="err">                &quot;s3:GetObjectVersion&quot;</span>
+<span class="err">            ],</span>
+<span class="err">            &quot;Resource&quot;: &quot;arn:aws:s3:::akia42ti3uitzaacfvxq-cv/*&quot;</span>
+<span class="err">        }</span>
+<span class="err">    ]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3>B- Édition de la chaîne CI</h3>
+<h4>Code</h4>
+<p>Il faut maintenant éditer un fichier .gitlab-ci.yml</p>
+<div class="highlight"><pre><span></span><code><span class="nl">stages</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">html</span>
+<span class="o">-</span> <span class="n">pdf</span>
+<span class="o">-</span> <span class="n">deploy</span>
+
+<span class="nl">cache</span><span class="p">:</span>
+ <span class="nl">paths</span><span class="p">:</span>
+   <span class="o">-</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">node_modules</span><span class="o">/</span>
+   <span class="o">-</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">public</span><span class="o">/</span>
+
+<span class="nl">htmlgen</span><span class="p">:</span>
+ <span class="nl">image</span><span class="p">:</span> <span class="nl">node</span><span class="p">:</span><span class="n">lts</span><span class="o">-</span><span class="n">alpine3</span><span class="mf">.13</span>
+ <span class="nl">stage</span><span class="p">:</span> <span class="n">html</span>
+ <span class="nl">before_script</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">apk</span> <span class="n">add</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">cache</span> <span class="n">git</span> <span class="n">nodejs</span><span class="o">-</span><span class="n">npm</span>
+ <span class="nl">artifacts</span><span class="p">:</span>
+  <span class="nl">paths</span><span class="p">:</span>
+    <span class="o">-</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">public</span>
+  <span class="nl">expire_in</span><span class="p">:</span> <span class="mi">20</span> <span class="n">minutes</span>
+ <span class="nl">script</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">npm</span> <span class="n">init</span> <span class="o">-</span><span class="n">y</span> <span class="o">&amp;&amp;</span> <span class="n">npm</span> <span class="n">install</span> <span class="n">resume</span><span class="o">-</span><span class="n">cli</span><span class="mf">@3.0.0</span> <span class="o">&amp;&amp;</span> <span class="n">npm</span> <span class="n">install</span>
+  <span class="o">-</span> <span class="n">nodejs</span> <span class="p">.</span><span class="o">/</span><span class="n">node_modules</span><span class="o">/</span><span class="n">resume</span><span class="o">-</span><span class="n">cli</span> <span class="n">export</span> <span class="n">public</span><span class="o">/</span><span class="n">index</span><span class="p">.</span><span class="n">html</span> <span class="o">--</span><span class="n">format</span> <span class="n">html</span> <span class="o">--</span><span class="n">theme</span> <span class="n">even</span>
+
+<span class="nl">pdfgen</span><span class="p">:</span>
+ <span class="nl">image</span><span class="p">:</span>
+   <span class="nl">name</span><span class="p">:</span> <span class="n">$IMAGE</span>
+   <span class="nl">entrypoint</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;/usr/local/bin/entrypoint&quot;</span><span class="p">,</span> <span class="s">&quot;--scale 0.70 --url file:///builds/$COMPILATIONPATH/public/index.html --pdf cv.pdf&quot;</span><span class="p">]</span>
+ <span class="nl">stage</span><span class="p">:</span> <span class="n">pdf</span>
+ <span class="nl">script</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">date</span>
+ <span class="nl">artifacts</span><span class="p">:</span>
+  <span class="nl">paths</span><span class="p">:</span>
+    <span class="o">-</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">public</span>
+  <span class="nl">expire_in</span><span class="p">:</span> <span class="mi">20</span> <span class="n">minutes</span>
+ <span class="nl">when</span><span class="p">:</span> <span class="n">on_success</span>
+ <span class="nl">dependencies</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">htmlgen</span>
+
+<span class="nl">tos3</span><span class="p">:</span>
+ <span class="nl">image</span><span class="p">:</span> <span class="nl">python</span><span class="p">:</span><span class="n">alpine</span>
+ <span class="nl">stage</span><span class="p">:</span> <span class="n">deploy</span>
+ <span class="nl">before_script</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">awscli</span>
+ <span class="nl">script</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">index</span><span class="p">.</span><span class="n">html</span> <span class="nl">s3</span><span class="p">:</span><span class="c1">//${BUCKET_NAME}/</span>
+  <span class="o">-</span> <span class="n">aws</span> <span class="n">s3</span> <span class="n">cp</span> <span class="o">/</span><span class="n">builds</span><span class="o">/</span><span class="n">$COMPILATIONPATH</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">cv</span><span class="p">.</span><span class="n">pdf</span> <span class="nl">s3</span><span class="p">:</span><span class="c1">//${BUCKET_NAME}/</span>
+ <span class="nl">environment</span><span class="p">:</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="n">$</span><span class="p">{</span><span class="n">CI_COMMIT_REF_SLUG</span><span class="p">}</span>
+  <span class="nl">url</span><span class="p">:</span> <span class="nl">https</span><span class="p">:</span><span class="c1">//${BUCKET_NAME}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/</span>
+ <span class="nl">when</span><span class="p">:</span> <span class="n">on_success</span>
+ <span class="nl">dependencies</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">pdfgen</span>
+</code></pre></div>
+
+<h4>Comment se déroule cette chaîne ?</h4>
+<p>Première étape:
+Tout simplement, le premier stage récupère la dernière image Docker nodejs (fonctionnant avec Alpine pour des questions de légèreté).   Enfin les dépendances sont installées (donc resume-cli) et le thème. La version de resume-cli est la 3.0.0 pour cause de bugs non résolus avec les versions suivantes (3.0.4 en avril 2021).</p>
+<p>Si vous récupérez un thème distant, il faut remplacer <code>npm init -y &amp;&amp; npm install resume-cli@3.0.0 &amp;&amp; npm install</code> par <code>npm init -y &amp;&amp; npm install resume-cli@3.0.0 &amp;&amp; npm install jsonresume-theme-even</code>.</p>
+<p>Enfin, le CV est exporté en HTML dans le dossier public, qui est mis en cache.</p>
+<p>Seconde étape:
+Un conteneur Docker est lancé avec l'image Docker crée plus tôt, et génère une version PDF, grâce à la version cli de Chrome, toujours dans le dossier public, en se basant sur le fichier index.html de la première étape.</p>
+<p>Troisième étape:
+Un autre conteneur est lancé, sous Alpine, et installe les outils cli pour uploader directement des fichiers sur AWS.</p>
+<h2>V- Création d'un repo de stockage du code</h2>
+<p>Si vous avez récupéré le code d'un thème, vous pouvez le gardez dans un coin, et ajouter votre fichier resume.json dedans. 
+Petite astuce: ajoutez un dossier public pour permettre le stockage des fichiers généré:</p>
+<div class="highlight"><pre><span></span><code><span class="err">mkdir public</span>
+<span class="err">touch public/.hello</span>
+</code></pre></div>
+
+<p>Puis effacer le dossier .git, et faire un git add sur tout les fichiers nécessaires au bon fonctionnement du thème:</p>
+<ul>
+<li>resume.json</li>
+<li>bin/</li>
+<li>index.js</li>
+<li>.gitlab-ci.yml</li>
+<li>netlify.toml</li>
+<li>package-lock.json</li>
+<li>package.json</li>
+<li>partials/</li>
+<li>resume.hbs</li>
+<li>style.css</li>
+<li>tap-snapshots</li>
+<li>public</li>
+</ul>
+<p>Ensuite, vous pouvez push le code sur votre repo Gitlab.</p>
+<h2>VI- Lancement de la chaîne</h2>
+<p>A chaque commit, la chaîne se relancera, et recompilera votre CV en HTML et en PDF.</p>
+<h2>VII- Publication via Cloudfront</h2>
+<p>Pour publier le site, une distribution Cloudfront doit être crée et pointer sur le bucket S3. Le <a href="https://aws.amazon.com/fr/premiumsupport/knowledge-center/cloudfront-serve-static-website/">tutoriel AWS</a> sera plus clair que mes explications.</p>
+<p>Enfin le site sera accessible publiquement, si vous ajoutez un enregistrement CNAME sur votre nom de domaine pour pointer vers la distribution CloudFront, avec évidemment un certificat SSL propre correspondant à votre nom de domaine.</p>
+<p>Évidemment, c'est la configuration de base donc peu sécurisée et performante, mais suffisante pour proposer deux fichiers.</p>
+<h1>docker-compose</h1>
+<p>Vous pouvez reprendre la partie I, II et III</p>
+<h2>IV alternatif</h2>
+<h3>Compilation de l'image Docker pour utiliser jsonresume</h3>
+<p>Après avoir récupérer le code du thème, vous pouvez modifier le nom de celui-ci dans ce Dockerfile pour que cela soit cohérent:</p>
+<div class="highlight"><pre><span></span><code><span class="n">FROM</span> <span class="nl">node</span><span class="p">:</span><span class="n">current</span><span class="o">-</span><span class="n">alpine3</span><span class="mf">.13</span>
+<span class="n">LABEL</span> <span class="n">name</span><span class="o">=</span><span class="n">jsonresume</span>
+<span class="n">ENV</span> <span class="n">RESUME_PUPPETEER_NO_SANDBOX</span><span class="o">=</span><span class="nb">true</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">data</span>
+<span class="n">RUN</span> <span class="n">apk</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">cache</span> <span class="n">add</span> <span class="n">nodejs</span><span class="o">-</span><span class="n">npm</span> <span class="n">git</span> <span class="n">chromium</span>
+<span class="n">RUN</span> <span class="n">npm</span> <span class="n">init</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">RUN</span> <span class="n">npm</span> <span class="n">install</span> <span class="n">resume</span><span class="o">-</span><span class="n">cli</span><span class="mf">@3.0.0</span>
+<span class="n">ADD</span> <span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span> <span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">node_modules</span><span class="o">/</span><span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">node_modules</span><span class="o">/</span><span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span>
+<span class="n">RUN</span> <span class="n">npm</span> <span class="n">install</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">data</span>
+<span class="n">ENTRYPOINT</span> <span class="p">[</span><span class="s">&quot;node&quot;</span><span class="p">,</span> <span class="s">&quot;/data/node_modules/resume-cli&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Si c'est un thème installable directement, remplacez </p>
+<div class="highlight"><pre><span></span><code><span class="n">RUN</span> <span class="n">npm</span> <span class="n">install</span> <span class="n">resume</span><span class="o">-</span><span class="n">cli</span><span class="mf">@3.0.0</span>
+<span class="n">ADD</span> <span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span> <span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">node_modules</span><span class="o">/</span><span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span>
+</code></pre></div>
+
+<p>par :</p>
+<div class="highlight"><pre><span></span><code><span class="n">RUN</span> <span class="n">npm</span> <span class="n">install</span> <span class="n">resume</span><span class="o">-</span><span class="n">cli</span><span class="mf">@3.0.0</span> <span class="n">jsonresume</span><span class="o">-</span><span class="n">theme</span><span class="o">-</span><span class="n">even</span>
+</code></pre></div>
+
+<p>Enfin, il faut compiler cette image et si vous la créez à distance, la push:</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker build -t monrepo/jsonresume .</span>
+<span class="err">docker push monrepo/jsonresume</span>
+</code></pre></div>
+
+<p>Sur un Mac M1, (toujours testé avec succés sur Mac Mini), pour la build:</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker buildx build --platform linux/amd64 -t monrepo/jsonresume --push .</span>
+</code></pre></div>
+
+<h3>Fichier de configuration nginx</h3>
+<div class="highlight"><pre><span></span><code><span class="n">user</span>  <span class="n">nginx</span><span class="p">;</span>
+<span class="n">error_log</span>  <span class="n">stderr</span>  <span class="n">warn</span><span class="p">;</span>
+<span class="n">pid</span>        <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">pid</span><span class="p">;</span>
+<span class="n">worker_processes</span>  <span class="n">auto</span><span class="p">;</span>
+<span class="n">worker_rlimit_nofile</span> <span class="mi">4096</span><span class="p">;</span>
+<span class="n">events</span> <span class="p">{</span>
+        <span class="n">worker_connections</span> <span class="mi">4096</span><span class="p">;</span>
+        <span class="n">multi_accept</span> <span class="n">on</span><span class="p">;</span>
+<span class="p">}</span>    
+<span class="n">http</span> <span class="p">{</span>
+    <span class="n">include</span>       <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">mime</span><span class="o">.</span><span class="n">types</span><span class="p">;</span>
+    <span class="n">default_type</span>  <span class="n">application</span><span class="o">/</span><span class="n">octet</span><span class="o">-</span><span class="n">stream</span><span class="p">;</span>
+
+    <span class="n">log_format</span>  <span class="n">main</span>  <span class="s1">&#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;</span>
+                        <span class="s1">&#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;</span>
+                        <span class="s1">&#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;</span><span class="p">;</span>
+
+    <span class="n">sendfile</span>        <span class="n">off</span><span class="p">;</span>
+    <span class="c1">#tcp_nopush     on;</span>
+    <span class="n">keepalive_timeout</span>           <span class="mi">600</span><span class="p">;</span>
+    <span class="n">proxy_connect_timeout</span>       <span class="mi">600</span><span class="p">;</span>
+    <span class="n">server_tokens</span> <span class="n">off</span><span class="p">;</span>
+    <span class="n">proxy_send_timeout</span>          <span class="mi">600</span><span class="p">;</span>
+    <span class="n">send_timeout</span>                <span class="mi">600</span><span class="p">;</span>
+    <span class="n">uwsgi_read_timeout</span>          <span class="mi">600</span><span class="p">;</span>
+    <span class="c1"># This is the main geonode conf</span>
+    <span class="n">charset</span>     <span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="p">;</span>
+    <span class="c1"># max upload size</span>
+    <span class="n">client_max_body_size</span> <span class="mi">2</span><span class="n">M</span><span class="p">;</span>
+    <span class="n">client_body_buffer_size</span> <span class="mi">256</span><span class="n">K</span><span class="p">;</span>
+    <span class="n">large_client_header_buffers</span> <span class="mi">4</span> <span class="mi">64</span><span class="n">k</span><span class="p">;</span>
+    <span class="n">proxy_read_timeout</span> <span class="mi">600</span><span class="n">s</span><span class="p">;</span>
+    <span class="n">fastcgi_hide_header</span> <span class="n">Set</span><span class="o">-</span><span class="n">Cookie</span><span class="p">;</span>
+
+  <span class="n">server</span><span class="p">{</span>
+    <span class="n">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="n">index</span> <span class="n">cv</span><span class="o">.</span><span class="n">html</span><span class="p">;</span>
+    <span class="n">root</span>   <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="p">;</span>
+
+    <span class="n">location</span> <span class="o">/</span><span class="p">{</span>
+    <span class="n">rewrite</span> <span class="o">^</span><span class="p">(</span><span class="o">/.*</span><span class="p">)</span>\<span class="o">.</span><span class="n">html</span><span class="p">(</span>\<span class="err">?</span><span class="o">.*</span><span class="p">)</span><span class="err">?</span><span class="o">$</span> <span class="o">$</span><span class="mi">1</span><span class="o">$</span><span class="mi">2</span> <span class="n">permanent</span><span class="p">;</span>
+    <span class="n">rewrite</span> <span class="o">^/</span><span class="p">(</span><span class="o">.*</span><span class="p">)</span><span class="o">/$</span> <span class="o">/$</span><span class="mi">1</span> <span class="n">permanent</span><span class="p">;</span>
+    <span class="n">try_files</span> <span class="o">$</span><span class="n">uri</span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">html</span> <span class="o">$</span><span class="n">uri</span><span class="o">.</span><span class="n">html</span> <span class="o">$</span><span class="n">uri</span><span class="o">/</span> <span class="o">$</span><span class="n">uri</span> <span class="o">=</span><span class="mi">404</span><span class="p">;</span>
+            <span class="n">add_header</span> <span class="n">Access</span><span class="o">-</span><span class="n">Control</span><span class="o">-</span><span class="n">Allow</span><span class="o">-</span><span class="n">Methods</span> <span class="s2">&quot;GET, POST&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+ <span class="p">}</span>
+    <span class="c1">#include /etc/nginx/conf.d/*.conf;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>docker-compose.yml</h3>
+<div class="highlight"><pre><span></span><code><span class="n">services</span><span class="o">:</span>
+    <span class="n">webserver</span><span class="o">:</span>
+        <span class="n">image</span><span class="o">:</span> <span class="n">nginx</span>
+        <span class="n">healthcheck</span><span class="o">:</span>
+            <span class="n">test</span><span class="o">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">f</span> <span class="n">http</span><span class="o">://</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">:</span><span class="mi">80</span> <span class="o">||</span> <span class="n">exit</span> <span class="mi">1</span>
+            <span class="n">interval</span><span class="o">:</span> <span class="mi">30</span><span class="n">s</span>
+            <span class="n">retries</span><span class="o">:</span> <span class="mi">3</span>
+        <span class="n">volumes</span><span class="o">:</span>
+            <span class="o">-</span> <span class="n">cv</span><span class="o">:/</span><span class="n">var</span><span class="sr">/www/</span><span class="n">html</span>
+            <span class="o">-</span> <span class="o">./</span><span class="n">webserver</span><span class="sr">/nginx.conf:/etc/nginx/</span><span class="n">nginx</span><span class="o">.</span><span class="na">conf</span><span class="o">:</span><span class="n">ro</span>
+    <span class="n">generate</span><span class="o">:</span>
+        <span class="n">image</span><span class="o">:</span> <span class="n">monrepo</span><span class="o">/</span><span class="n">jsonresume</span>
+        <span class="n">command</span><span class="o">:</span> <span class="n">export</span> <span class="o">--</span><span class="n">theme</span> <span class="n">even</span> <span class="sr">/tmp/resume_output/</span><span class="n">cv</span><span class="o">.</span><span class="na">html</span>
+        <span class="n">volumes</span><span class="o">:</span>
+            <span class="o">-</span>  <span class="n">cv</span><span class="o">:/</span><span class="n">tmp</span><span class="sr">/resume_output/</span>
+            <span class="o">-</span> <span class="o">./</span><span class="n">files</span><span class="sr">/resume.json:/data/</span><span class="n">resume</span><span class="o">.</span><span class="na">json</span><span class="o">:</span><span class="n">ro</span>
+            <span class="o">-</span> <span class="o">./</span><span class="n">files</span><span class="sr">/profile.jpeg:/data/node_modules/jsonresume-theme-even/</span><span class="n">profile</span><span class="o">.</span><span class="na">jpeg</span><span class="o">:</span><span class="n">ro</span>
+    <span class="n">pdf</span><span class="o">:</span>
+        <span class="n">image</span><span class="o">:</span> <span class="n">monrepo</span><span class="o">/</span><span class="n">html</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">pdf</span>
+        <span class="n">working_dir</span><span class="o">:</span> <span class="sr">/workspace/</span>
+        <span class="n">command</span><span class="o">:</span> <span class="o">--</span><span class="n">url</span> <span class="n">file</span><span class="o">:///</span><span class="n">workspace</span><span class="o">/</span><span class="n">cv</span><span class="o">.</span><span class="na">html</span> <span class="o">--</span><span class="n">pdf</span> <span class="n">cv</span><span class="o">.</span><span class="na">pdf</span> <span class="o">--</span><span class="n">scale</span> <span class="mf">0.72</span>
+        <span class="n">volumes</span><span class="o">:</span>
+            <span class="o">-</span> <span class="n">cv</span><span class="o">:/</span><span class="n">workspace</span>
+<span class="n">volumes</span><span class="o">:</span>
+  <span class="n">cv</span><span class="o">:</span>
+</code></pre></div>
+
+<h3>Utilisation finale</h3>
+<p>Il suffira juste d'utiliser un reverse proxy pour rendre accessible votre CV.</p>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

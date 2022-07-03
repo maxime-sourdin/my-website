@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Rickroller les scanneurs de sites et de serveurs | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/rickroller-les-scanneurs-de-sites-et-de-serveurs.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Une redirection blagueuse des pages d'erreurs">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Rickroller les scanneurs de sites et de serveurs
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/hardening.html">Hardening</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/shitpost.html">#Shitpost</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <p>Il y a juste un fichier de configuration Nginx à éditer:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">sudo</span> <span class="nt">nano</span> <span class="o">/</span><span class="nt">etc</span><span class="o">/</span><span class="nt">nginx</span><span class="o">/</span><span class="nt">snippets</span><span class="o">/</span><span class="nt">rickroll</span><span class="p">.</span><span class="nc">conf</span>
+
+<span class="nt">error_page</span> <span class="nt">404</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+<span class="nt">error_page</span> <span class="nt">500</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+<span class="nt">error_page</span> <span class="nt">501</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+<span class="nt">error_page</span> <span class="nt">502</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+<span class="nt">error_page</span> <span class="nt">503</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+<span class="nt">error_page</span> <span class="nt">504</span> <span class="o">=</span><span class="nt">301</span> <span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span>
+</code></pre></div>
+
+<p>Pensez à l'intégrer dans votre configuration Nginx:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">sudo</span> <span class="n">nano</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">snippets</span><span class="o">/</span><span class="n">monsite</span><span class="p">.</span><span class="n">conf</span>
+
+<span class="n">include</span> <span class="p">..</span><span class="o">/</span><span class="n">snippets</span><span class="o">/</span><span class="n">rickroll</span><span class="p">.</span><span class="n">conf</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Et ensuite,  Nginx doit être redémarré:</p>
+<div class="highlight"><pre><span></span><code><span class="err">sudo  systemctl restart nginx</span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

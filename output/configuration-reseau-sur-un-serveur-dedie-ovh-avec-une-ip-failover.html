@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Configuration réseau sur un serveur dédié OVH, avec une IP failover | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/configuration-reseau-sur-un-serveur-dedie-ovh-avec-une-ip-failover.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Configurer "facilement" son IP failover">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Configuration réseau sur un serveur dédié OVH, avec une IP failover
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/reseau.html">Réseau</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/ovh.html">#OVH</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h2>RedHat/CentOS</h2>
+<p>ifcfg-eno1</p>
+<div class="highlight"><pre><span></span><code><span class="err">BOOTPROTO=dhcp</span>
+<span class="err">DEVICE=eno1</span>
+<span class="err">HWADDR= $MAC_ADDRESS_ENO1</span>
+<span class="err">ONBOOT=yes</span>
+<span class="err">STARTMODE=auto</span>
+<span class="err">TYPE=Ethernet</span>
+<span class="err">USERCTL=no</span>
+</code></pre></div>
+
+<p>ifcfg-eno2</p>
+<div class="highlight"><pre><span></span><code><span class="err">IPADDR=$IP_FAILOVER</span>
+<span class="err">NETMASK=255.255.255.255</span>
+<span class="err">BROADCAST=$IP_FAILOVER</span>
+<span class="err">ONBOOT=yes</span>
+<span class="err">TYPE=Ethernet</span>
+<span class="err">PROXY_METHOD=none</span>
+<span class="err">BROWSER_ONLY=no</span>
+<span class="err">PREFIX=32</span>
+<span class="err">DEFROUTE=yes</span>
+<span class="err">IPV4_FAILURE_FATAL=no</span>
+<span class="err">IPv6INIT=yes</span>
+<span class="err">NAME=&quot;System eno2:0&quot;</span>
+<span class="err">UUID=f8744e88-b2f8-de69-4797-e33eead3a435</span>
+<span class="err">BOOTPROTO=none</span>
+<span class="err">ZONE=web</span>
+<span class="err">IPV6INIT=yes</span>
+<span class="err">IPV6_AUTOCONF=no</span>
+<span class="err">IPV6ADDR=$IPV6/56</span>
+<span class="err">IPV6_DEFROUTE=yes</span>
+<span class="err">IPV6_FAILURE_FATAL=no</span>
+<span class="err">IPV6_ADDR_GEN_MODE=stable-privacy</span>
+<span class="err">IPV6_DEFAULTGW=$GW_IPV6</span>
+<span class="err">IPV6_PEERROUTES=no</span>
+</code></pre></div>
+
+<h2>Ubuntu</h2>
+<div class="highlight"><pre><span></span><code><span class="o">#</span> <span class="n">This</span> <span class="n">file</span> <span class="k">is</span> <span class="k">generated</span> <span class="k">from</span> <span class="n">information</span> <span class="n">provided</span> <span class="k">by</span> <span class="n">the</span> <span class="n">datasource</span><span class="p">.</span>  <span class="n">Changes</span>
+<span class="o">#</span> <span class="k">to</span> <span class="n">it</span> <span class="n">will</span> <span class="k">not</span> <span class="n">persist</span> <span class="n">across</span> <span class="n">an</span> <span class="n">instance</span> <span class="n">reboot</span><span class="p">.</span>  <span class="k">To</span> <span class="n">disable</span> <span class="n">cloud</span><span class="o">-</span><span class="n">init</span><span class="err">&#39;</span><span class="n">s</span>
+<span class="o">#</span> <span class="n">network</span> <span class="n">configuration</span> <span class="n">capabilities</span><span class="p">,</span> <span class="k">write</span> <span class="n">a</span> <span class="n">file</span>
+<span class="o">#</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">cloud</span><span class="o">/</span><span class="n">cloud</span><span class="p">.</span><span class="n">cfg</span><span class="p">.</span><span class="n">d</span><span class="o">/</span><span class="mi">99</span><span class="o">-</span><span class="n">disable</span><span class="o">-</span><span class="n">network</span><span class="o">-</span><span class="n">config</span><span class="p">.</span><span class="n">cfg</span> <span class="k">with</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
+<span class="o">#</span> <span class="n">network</span><span class="p">:</span> <span class="err">{</span><span class="n">config</span><span class="p">:</span> <span class="n">disabled</span><span class="err">}</span>
+<span class="n">network</span><span class="p">:</span>
+    <span class="k">version</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="n">ethernets</span><span class="p">:</span>
+        <span class="n">eno1</span><span class="p">:</span>
+            <span class="n">dhcp4</span><span class="p">:</span> <span class="k">true</span>
+            <span class="k">match</span><span class="p">:</span>
+                <span class="n">macaddress</span><span class="p">:</span> <span class="err">$</span><span class="n">MAC_ADDRESS_ENO1</span>
+            <span class="k">set</span><span class="o">-</span><span class="n">name</span><span class="p">:</span> <span class="n">eno1</span>
+            <span class="n">nameservers</span><span class="p">:</span>
+                <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mi">127</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">eno2</span><span class="p">:</span>
+            <span class="n">addresses</span><span class="p">:</span>
+                <span class="o">-</span> <span class="err">$</span><span class="n">IP_FAILOVER</span><span class="o">/</span><span class="mi">32</span>
+            <span class="n">optional</span><span class="p">:</span> <span class="k">true</span>
+            <span class="n">dhcp4</span><span class="p">:</span> <span class="k">false</span>
+            <span class="k">match</span><span class="p">:</span>
+                <span class="n">macaddress</span><span class="p">:</span> <span class="err">$</span><span class="n">MAC_FAILOVER</span>
+            <span class="k">set</span><span class="o">-</span><span class="n">name</span><span class="p">:</span> <span class="n">eno2</span>
+            <span class="n">nameservers</span><span class="p">:</span>
+                <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mi">127</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

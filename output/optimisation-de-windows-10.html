@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Optimisation de Windows 10 | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/optimisation-de-windows-10.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Quelques commandes utiles pour gérer et nettoyer Windows">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Optimisation de Windows 10
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/os.html">OS</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/windows.html">#Windows</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h2>Gestion de l'alimentation</h2>
+<p>Ultimate Performance:</p>
+<div class="highlight"><pre><span></span><code><span class="err">powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61</span>
+</code></pre></div>
+
+<p>High Performance:</p>
+<div class="highlight"><pre><span></span><code><span class="err">powercfg -duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c</span>
+</code></pre></div>
+
+<p>Balanced:</p>
+<div class="highlight"><pre><span></span><code><span class="err">powercfg -duplicatescheme 381b4222-f694-41f0-9685-ff5bb260df2e</span>
+</code></pre></div>
+
+<p>Power saver:</p>
+<div class="highlight"><pre><span></span><code><span class="err">powercfg -duplicatescheme a1841308-3541-4fab-bc81-f71556f20b4a</span>
+</code></pre></div>
+
+<h2>Domaine Windows</h2>
+<div class="highlight"><pre><span></span><code><span class="err">@echo off</span>
+<span class="err">NETDOM JOIN %computername% /domain:DOMAINE /userD:USER /passwordD:MOTDEPASSE</span>
+<span class="err">del domaine.bat</span>
+<span class="err">shutdown -r -f -t 0</span>
+</code></pre></div>
+
+<h2>Clean</h2>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="n">rem</span> <span class="o">***</span> <span class="n">Disable</span> <span class="n">Some</span> <span class="n">Service</span> <span class="o">***</span>
+<span class="n">sc</span> <span class="n">stop</span> <span class="n">DiagTrack</span>
+<span class="n">sc</span> <span class="n">stop</span> <span class="n">diagnosticshub</span><span class="o">.</span><span class="n">standardcollector</span><span class="o">.</span><span class="n">service</span>
+<span class="n">sc</span> <span class="n">stop</span> <span class="n">dmwappushservice</span>
+<span class="n">sc</span> <span class="n">stop</span> <span class="n">WMPNetworkSvc</span>
+<span class="n">sc</span> <span class="n">stop</span> <span class="n">WSearch</span>
+
+<span class="n">sc</span> <span class="n">config</span> <span class="n">DiagTrack</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">sc</span> <span class="n">config</span> <span class="n">diagnosticshub</span><span class="o">.</span><span class="n">standardcollector</span><span class="o">.</span><span class="n">service</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">sc</span> <span class="n">config</span> <span class="n">dmwappushservice</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">REM</span> <span class="n">sc</span> <span class="n">config</span> <span class="n">RemoteRegistry</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">REM</span> <span class="n">sc</span> <span class="n">config</span>
+<span class="n">TrkWks</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">sc</span> <span class="n">config</span> <span class="n">WMPNetworkSvc</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">sc</span> <span class="n">config</span> <span class="n">WSearch</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+<span class="n">REM</span> <span class="n">sc</span> <span class="n">config</span> <span class="n">SysMain</span> <span class="n">start</span><span class="o">=</span> <span class="n">disabled</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">SCHEDULED</span> <span class="n">TASKS</span> <span class="n">tweaks</span> <span class="o">***</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\AppID\SmartScreenSpecific&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Application Experience\ProgramDataUpdater&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Application Experience\StartupAppTask&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Customer Experience Improvement Program\Consolidator&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Customer Experience Improvement ProgramsbCeip&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Customer Experience Improvement Programploader&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Shell\FamilySafetyUpload&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Office\OfficeTelemetryAgentLogOn&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Office\OfficeTelemetryAgentFallBack&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Office\Office 15 Subscription Heartbeat&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Autochk\Proxy&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\CloudExperienceHost\CreateObjectTask&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\DiskFootprint\Diagnostics&quot;</span> <span class="o">/</span><span class="n">Disable</span> <span class="o">***</span> <span class="n">Not</span> <span class="n">sure</span> <span class="k">if</span> <span class="n">should</span> <span class="n">be</span> <span class="n">disabled</span><span class="p">,</span> <span class="n">maybe</span> <span class="n">related</span> <span class="n">to</span> <span class="n">S</span><span class="o">.</span><span class="n">M</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">R</span><span class="o">.</span><span class="n">T</span><span class="o">.</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\FileHistory\File History (maintenance mode)&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Maintenance\WinSAT&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\NetTrace\GatherNetworkInfo&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\PI\Sqm-Tasks&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">The</span> <span class="n">stubborn</span> <span class="n">task</span> <span class="n">Microsoft</span>\<span class="n">Windows</span>\<span class="n">SettingSync</span>\<span class="n">BackgroundUploadTask</span> <span class="n">can</span> <span class="n">be</span>
+<span class="n">Disabled</span> <span class="n">using</span> <span class="n">a</span> <span class="n">simple</span> <span class="n">bit</span> <span class="n">change</span><span class="o">.</span> <span class="n">I</span> <span class="n">use</span> <span class="n">a</span> <span class="n">REG</span> <span class="n">file</span> <span class="k">for</span> <span class="n">that</span> <span class="p">(</span><span class="n">attached</span> <span class="n">to</span> <span class="n">this</span> <span class="n">post</span><span class="p">)</span><span class="o">.</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Time Synchronization\ForceSynchronizeTime&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Time Synchronization\SynchronizeTime&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\Windows Error Reporting\QueueReporting&quot;</span> <span class="o">/</span><span class="n">Disable</span>
+<span class="n">REM</span> <span class="n">schtasks</span> <span class="o">/</span><span class="n">Change</span> <span class="o">/</span><span class="n">TN</span> <span class="s2">&quot;Microsoft\Windows\WindowsUpdate\Automatic App Update&quot;</span>
+
+<span class="n">Disable</span> <span class="n">REM</span> 
+<span class="o">***</span> <span class="n">Remove</span> <span class="n">Cortana</span> <span class="o">***</span>
+<span class="n">REM</span> <span class="n">Currently</span> <span class="n">MS</span> <span class="n">doesn</span><span class="s1">&#39;t allow to uninstall Cortana using the above step claiming it&#39;</span><span class="n">s</span> <span class="n">a</span> <span class="n">required</span> <span class="n">OS</span> <span class="n">component</span> <span class="p">(</span><span class="n">hahWe</span> <span class="n">will</span> <span class="n">have</span> <span class="n">to</span> <span class="n">rename</span> <span class="n">the</span> <span class="n">Cortana</span> <span class="n">App</span> <span class="n">folder</span> <span class="p">(</span><span class="n">add</span> <span class="s2">&quot;.bak&quot;</span> <span class="n">to</span> <span class="n">its</span> <span class="n">name</span><span class="p">),</span> <span class="n">but</span> <span class="n">this</span> <span class="n">can</span> <span class="n">be</span> <span class="n">done</span> <span class="n">only</span> <span class="k">if</span> <span class="n">Cortana</span> <span class="k">is</span> <span class="ow">not</span> <span class="n">running</span><span class="o">.</span>
+<span class="n">REM</span> <span class="n">The</span> <span class="n">issue</span> <span class="k">is</span> <span class="n">that</span> <span class="n">when</span> <span class="n">Cortana</span> <span class="n">process</span> <span class="p">(</span><span class="n">SearchUI</span><span class="p">)</span> <span class="k">is</span> <span class="n">killed</span><span class="p">,</span> <span class="n">it</span> <span class="n">respawns</span> <span class="n">very</span> <span class="n">quickly</span>
+<span class="n">REM</span> <span class="n">So</span> <span class="n">the</span> <span class="n">following</span> <span class="n">code</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">quick</span> <span class="p">(</span><span class="ow">and</span> <span class="n">it</span> <span class="k">is</span><span class="p">)</span> <span class="n">so</span> <span class="n">we</span> <span class="n">can</span> <span class="n">manage</span> <span class="n">to</span> <span class="n">rename</span> <span class="n">the</span> <span class="n">folder</span>
+<span class="n">REM</span>
+<span class="n">REM</span> <span class="n">Disabling</span> <span class="n">Cortana</span> <span class="n">this</span> <span class="n">way</span> <span class="n">on</span> <span class="n">Version</span> <span class="mi">1703</span> <span class="p">(</span><span class="n">RS2</span><span class="p">)</span> <span class="n">will</span> <span class="n">render</span> <span class="n">all</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Start</span> <span class="n">Menu</span> <span class="n">unavailable</span><span class="o">.</span>
+<span class="n">REM</span> <span class="n">So</span> <span class="n">this</span> <span class="k">is</span> <span class="n">commented</span> <span class="n">out</span> <span class="k">for</span> <span class="n">now</span> <span class="n">until</span> <span class="n">a</span> <span class="n">better</span> <span class="n">solution</span> <span class="k">is</span> <span class="n">found</span><span class="o">.</span>
+<span class="n">REM</span> <span class="n">taskkill</span> <span class="o">/</span><span class="n">F</span> <span class="o">/</span><span class="n">IM</span> <span class="n">SearchUI</span><span class="o">.</span><span class="n">exe</span>
+<span class="n">REM</span> <span class="n">move</span> <span class="s2">&quot;%windir%\SystemApps\Microsoft.Windows.Cortana_cw5n1h2txyewy&quot;</span> <span class="s2">&quot;%windir%\SystemApps\Microsoft.Windows.Cortana_cw5n1h2txyewy.bak&quot;</span>
+
+<span class="err">@</span><span class="n">rem</span> <span class="o">***</span> <span class="n">Remove</span> <span class="n">Telemetry</span> <span class="o">&amp;</span> <span class="n">Data</span> <span class="n">Collection</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">PreventDeviceMetadataFromNetwork</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;AllowTelemetry&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\MRT&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">DontOfferThroughWUAU</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span>
+<span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\SQMClient\Windows&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;CEIPEnable&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;AITEnable&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;DisableUAR&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;AllowTelemetry&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger\AutoLogger-Diagtrack-Listener&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;Start&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SYSTEM\CurrentControlSet\Control\WMI\AutoLogger\SQMLogger&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;Start&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="err">@</span><span class="n">REM</span> <span class="n">Settings</span> <span class="o">-&gt;</span> <span class="n">Privacy</span> <span class="o">-&gt;</span> <span class="n">General</span> <span class="o">-&gt;</span> <span class="n">Let</span> <span class="n">apps</span> <span class="n">use</span> <span class="n">my</span> <span class="n">advertising</span> <span class="n">ID</span><span class="o">...</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">Enabled</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">REM</span> <span class="o">-</span> <span class="n">SmartScreen</span> <span class="n">Filter</span> <span class="k">for</span> <span class="n">Store</span> <span class="n">Apps</span><span class="p">:</span> <span class="n">Disable</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">EnableWebContentEvaluation</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="n">REM</span> <span class="o">-</span> <span class="n">Let</span> <span class="n">websites</span> <span class="n">provide</span> <span class="n">locally</span><span class="o">...</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\Control Panel\Internationalser Profile&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">HttpAcceptLanguageOptOut</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="err">@</span><span class="n">REM</span> <span class="n">WiFi</span> <span class="n">Sense</span><span class="p">:</span> <span class="n">HotSpot</span> <span class="n">Sharing</span><span class="p">:</span> <span class="n">Disable</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">value</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+<span class="err">@</span><span class="n">REM</span> <span class="n">WiFi</span> <span class="n">Sense</span><span class="p">:</span> <span class="n">Shared</span> <span class="n">HotSpot</span> <span class="n">Auto</span><span class="o">-</span><span class="n">Connect</span><span class="p">:</span> <span class="n">Disable</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">value</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="err">@</span><span class="n">REM</span> <span class="n">Change</span> <span class="n">Windows</span> <span class="n">Updates</span> <span class="n">to</span> <span class="s2">&quot;Notify to schedule restart&quot;</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Microsoft\WindowsUpdateX\Settings&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">UxOption</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+<span class="err">@</span><span class="n">REM</span> <span class="n">Disable</span> <span class="n">P2P</span> <span class="n">Update</span> <span class="n">downlods</span> <span class="n">outside</span> <span class="n">of</span> <span class="n">local</span> <span class="n">network</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="n">DODownloadMode</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="err">@</span><span class="n">REM</span>
+<span class="o">***</span> <span class="n">Disable</span> <span class="n">Cortana</span> <span class="o">&amp;</span> <span class="n">Telemetry</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;AllowCortana&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Hide</span> <span class="n">the</span> <span class="n">search</span> <span class="n">box</span> <span class="n">from</span> <span class="n">taskbar</span><span class="o">.</span> <span class="n">You</span> <span class="n">can</span> <span class="n">still</span> <span class="n">search</span> <span class="n">by</span> <span class="n">pressing</span> <span class="n">the</span> <span class="n">Win</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">start</span> <span class="n">typing</span> <span class="n">what</span> <span class="n">you</span><span class="s1">&#39;re looking for ***</span>
+<span class="n">REM</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">hide</span> <span class="n">completely</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=</span> <span class="n">show</span> <span class="n">only</span> <span class="n">icon</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=</span> <span class="n">show</span> <span class="n">long</span> <span class="n">search</span> <span class="n">box</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;SearchboxTaskbarMode&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Disable</span> <span class="n">MRU</span> <span class="n">lists</span> <span class="p">(</span><span class="n">jump</span> <span class="n">lists</span><span class="p">)</span> <span class="n">of</span> <span class="n">XAML</span> <span class="n">apps</span> <span class="ow">in</span> <span class="n">Start</span> <span class="n">Menu</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;Start_TrackDocs&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Set</span> <span class="n">Windows</span> <span class="n">Explorer</span> <span class="n">to</span> <span class="n">start</span> <span class="n">on</span> <span class="n">This</span> <span class="n">PC</span> <span class="n">instead</span> <span class="n">of</span> <span class="n">Quick</span> <span class="n">Access</span> <span class="o">***</span>
+<span class="n">REM</span> <span class="mi">1</span> <span class="o">=</span> <span class="n">This</span> <span class="n">PC</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=</span> <span class="n">Quick</span> <span class="n">access</span>
+<span class="n">REM</span> <span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;LaunchTo&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Disable</span> <span class="n">Suggestions</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Start</span> <span class="n">Menu</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;SystemPaneSuggestionsEnabled&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="err">@</span><span class="n">rem</span> <span class="n">Remove</span> <span class="n">Apps</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *3DBuilder* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *Cortana* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *Getstarted* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsAlarms* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsCamera* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *bing* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *MicrosoftOfficeHub* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *OneNote* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *people* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsPhone* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *photos* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *SkypeApp* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *solit* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsSoundRecorder* | Rem</span>
+
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *zune*| Remove-AppxPackage&quot;</span>
+<span class="n">REM</span> <span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsCalculator* | Remove-AppxPackage&quot;</span>
+<span class="n">REM</span> <span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *WindowsMaps* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *Sway* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *CommsPhone* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *ConnectivityStore* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *Microsoft.Messaging* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *ContentDeliveryManager* | Remove-AppxPackage&quot;</span>
+<span class="n">PowerShell</span> <span class="o">-</span><span class="n">Command</span> <span class="s2">&quot;Get-AppxPackage *Microsoft.WindowsStore* | Remove-AppxPackage&quot;</span>
+
+
+<span class="err">@</span><span class="n">rem</span> <span class="n">NOW</span> <span class="n">JUST</span> <span class="n">SOME</span> <span class="n">TWEAKS</span>
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Show</span> <span class="n">super</span> <span class="n">hidden</span> <span class="n">system</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">Explorer</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;ShowSuperHidden&quot;</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">1</span> <span class="o">/</span><span class="n">f</span>
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Show</span> <span class="n">file</span> <span class="n">extensions</span> <span class="ow">in</span> <span class="n">Explorer</span> <span class="o">***</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced&quot;</span> <span class="o">/</span><span class="n">v</span> <span class="s2">&quot;HideFileExt&quot;</span> <span class="o">/</span><span class="n">t</span>  <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">/</span><span class="n">f</span>
+
+
+<span class="n">REM</span> <span class="o">***</span> <span class="n">Uninstall</span> <span class="n">OneDrive</span> <span class="o">***</span>
+<span class="n">start</span> <span class="o">/</span><span class="n">wait</span> <span class="s2">&quot;&quot;</span> <span class="s2">&quot;%SYSTEMROOT%\SYSWOW64\ONEDRIVESETUP.EXE&quot;</span> <span class="o">/</span><span class="n">UNINSTALL</span>
+<span class="n">rd</span> <span class="n">C</span><span class="p">:</span>\<span class="n">OneDriveTemp</span> <span class="o">/</span><span class="n">Q</span> <span class="o">/</span><span class="n">S</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">rd</span> <span class="s2">&quot;%USERPROFILE%\OneDrive&quot;</span> <span class="o">/</span><span class="n">Q</span> <span class="o">/</span><span class="n">S</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">rd</span> <span class="s2">&quot;%LOCALAPPDATA%\Microsoft\OneDrive&quot;</span> <span class="o">/</span><span class="n">Q</span> <span class="o">/</span><span class="n">S</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">rd</span> <span class="s2">&quot;%PROGRAMDATA%\Microsoft OneDrive&quot;</span> <span class="o">/</span><span class="n">Q</span> <span class="o">/</span><span class="n">S</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CLASSES_ROOT\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}\ShellFolder&quot;</span> <span class="o">/</span><span class="n">f</span> <span class="o">/</span><span class="n">v</span> <span class="n">Attributes</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">reg</span> <span class="n">add</span> <span class="s2">&quot;HKEY_CLASSES_ROOT\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}\ShellFolder&quot;</span> <span class="o">/</span><span class="n">f</span> <span class="o">/</span><span class="n">v</span> <span class="n">Attributes</span> <span class="o">/</span><span class="n">t</span> <span class="n">REG_DWORD</span> <span class="o">/</span><span class="n">d</span> <span class="mi">0</span> <span class="o">&gt;</span><span class="n">NUL</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+<span class="n">echo</span> <span class="n">OneDrive</span> <span class="n">has</span> <span class="n">been</span> <span class="n">removed</span><span class="o">.</span> <span class="n">Windows</span> <span class="n">Explorer</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">restarted</span><span class="o">.</span>
+<span class="n">pause</span>
+<span class="n">start</span> <span class="o">/</span><span class="n">wait</span> <span class="n">TASKKILL</span> <span class="o">/</span><span class="n">F</span> <span class="o">/</span><span class="n">IM</span> <span class="n">explorer</span><span class="o">.</span><span class="n">exe</span>
+<span class="n">start</span> <span class="n">explorer</span><span class="o">.</span><span class="n">exe</span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

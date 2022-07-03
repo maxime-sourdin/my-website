@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Monitoring facile avec checkup et Grafana | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/monitoring-facile-avec-checkup-et-grafana.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Surveiller l'état de ses services facilement">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Monitoring facile avec checkup et Grafana
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/supervision.html">Supervision</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/grafana.html">#Grafana</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <p>Quelques prérequis :</p>
+<ul>
+<li>
+<p>un bucket S3 (sur n'importe quel service compatible)</p>
+</li>
+<li>
+<p>Docker ou Podman</p>
+</li>
+</ul>
+<h1>Première étape : le déploiement de Grafana et Prometheus via docker-compose</h1>
+<p>## Édition du fichier docker-compose:</p>
+<div class="highlight"><pre><span></span><code><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span>
+  <span class="n">grafana</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">grafana</span><span class="o">/</span><span class="n">grafana</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">grafana</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s2">&quot;UID:UID&quot;</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">grafana</span><span class="o">/</span><span class="n">data</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">grafana</span>
+    <span class="n">networks</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">monitoring</span>
+    <span class="n">healthcheck</span><span class="p">:</span>
+      <span class="n">test</span><span class="p">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">f</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">3000</span> <span class="o">||</span> <span class="n">exit</span> <span class="mi">1</span>
+      <span class="n">interval</span><span class="p">:</span> <span class="mi">30</span><span class="n">s</span>
+      <span class="n">retries</span><span class="p">:</span> <span class="mi">3</span>
+ <span class="n">prometheus</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">prom</span><span class="o">/</span><span class="n">prometheus</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">prometheus</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s2">&quot;UID:UID&quot;</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">prometheus</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">prometheus</span><span class="o">/</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">prometheus</span><span class="o">/</span><span class="n">data</span><span class="p">:</span><span class="o">/</span><span class="n">prometheus</span>
+    <span class="n">command</span><span class="p">:</span>
+      <span class="o">-</span> <span class="s1">&#39;--config.file=/etc/prometheus/prometheus.yml&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--storage.tsdb.path=/prometheus&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--web.console.libraries=/etc/prometheus/console_libraries&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--web.console.templates=/etc/prometheus/consoles&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--storage.tsdb.retention=200h&#39;</span>
+    <span class="n">networks</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">monitoring</span>
+    <span class="n">healthcheck</span><span class="p">:</span>
+      <span class="n">test</span><span class="p">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">f</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">9090</span> <span class="o">||</span> <span class="n">exit</span> <span class="mi">1</span>
+      <span class="n">interval</span><span class="p">:</span> <span class="mi">30</span><span class="n">s</span>
+      <span class="n">retries</span><span class="p">:</span> <span class="mi">3</span>
+<span class="n">networks</span><span class="p">:</span>
+  <span class="n">monitoring</span><span class="p">:</span>
+    <span class="n">driver</span><span class="p">:</span> <span class="n">bridge</span>
+</code></pre></div>
+
+<p>Remplacer l'UID par celui qui a les droits d'exécuter Docker.</p>
+<p>## Configuration prometheus (dans prometheus/config/prometheus.yml)</p>
+<div class="highlight"><pre><span></span><code><span class="n">global</span><span class="o">:</span>
+  <span class="n">scrape_interval</span><span class="o">:</span> <span class="mi">15</span><span class="n">s</span>
+  <span class="n">evaluation_interval</span><span class="o">:</span> <span class="mi">15</span><span class="n">s</span>
+
+<span class="n">rule_files</span><span class="o">:</span>
+  <span class="o">-</span> <span class="s2">&quot;targets.rules&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;host.rules&quot;</span>
+  <span class="o">-</span> <span class="s2">&quot;containers.rules&quot;</span>
+
+<span class="n">scrape_configs</span><span class="o">:</span>
+  <span class="o">-</span> <span class="n">job_name</span><span class="o">:</span> <span class="s1">&#39;prometheus&#39;</span>
+    <span class="n">scrape_interval</span><span class="o">:</span> <span class="mi">10</span><span class="n">s</span>
+    <span class="n">static_configs</span><span class="o">:</span>
+      <span class="o">-</span> <span class="n">targets</span><span class="o">:</span> <span class="o">[</span><span class="s1">&#39;localhost:9090&#39;</span><span class="o">]</span>
+</code></pre></div>
+
+<p>Ensuite, faites un docker-compose up -d et suivez la configuration pas à pas de Grafana (mot de passe administrateur·ice.)</p>
+<p>Pour la datasource, il s'agit de prometheus, celle-ci doit donc pointer vers http://prometheus:9090. Attention, le trafic passe donc en clair.</p>
+<p>## Ajout d'un nouveau type de datasource: Infinity</p>
+<p>Vous pouvez retrouver le code <a href="https://github.com/yesoreyeram/grafana-infinity-datasource">d'Infinity ici</a>.</p>
+<p>Pour l'installer c'est très simple:</p>
+<div class="highlight"><pre><span></span><code><span class="err"> docker exec -ti grafana grafana-cli plugins install yesoreyeram-infinity-datasource</span>
+<span class="err">docker restart grafana</span>
+</code></pre></div>
+
+<h1>Seconde étape: compilation d'une image Docker personnalisée de Checkup</h1>
+<h2>Récupération des sources</h2>
+<p>Récupérez les sources de <a href="https://github.com/sourcegraph/checkup">checkup</a> ici. Il va falloir modifier plusieurs lignes dans checkup/storage/fs/types.go:</p>
+<div class="highlight"><pre><span></span><code><span class="n">package</span> <span class="n">fs</span>
+<span class="o">//</span><span class="kn">import</span> <span class="p">(</span>
+<span class="o">//</span>  <span class="s2">&quot;fmt&quot;</span>
+<span class="o">//</span>  <span class="s2">&quot;github.com/sourcegraph/checkup/types&quot;</span>
+<span class="o">//</span><span class="p">)</span>
+<span class="n">const</span> <span class="n">IndexName</span> <span class="o">=</span> <span class="s2">&quot;index.json&quot;</span>
+<span class="o">//</span> <span class="n">FilenameFormatString</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">format</span> <span class="n">string</span> <span class="n">used</span>
+<span class="o">//</span> <span class="n">by</span> <span class="n">GenerateFilename</span> <span class="n">to</span> <span class="n">create</span> <span class="n">a</span> <span class="n">filename</span><span class="o">.</span>
+<span class="n">const</span> <span class="n">FilenameFormatString</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="o">//</span><span class="n">const</span> <span class="n">FilenameFormatString</span> <span class="o">=</span> <span class="s2">&quot;latest.json&quot;</span>
+<span class="o">//</span> <span class="n">GenerateFilename</span> <span class="n">returns</span> <span class="n">a</span> <span class="n">filename</span> <span class="n">that</span> <span class="ow">is</span> <span class="n">ideal</span>
+<span class="o">//</span> <span class="k">for</span> <span class="n">storing</span> <span class="n">the</span> <span class="n">results</span> <span class="nb">file</span> <span class="n">on</span> <span class="n">a</span> <span class="n">storage</span> <span class="n">provider</span>
+<span class="o">//</span> <span class="n">that</span> <span class="n">relies</span> <span class="n">on</span> <span class="n">the</span> <span class="n">filename</span> <span class="k">for</span> <span class="n">retrieval</span> <span class="n">that</span> <span class="ow">is</span>
+<span class="o">//</span> <span class="nb">sorted</span> <span class="n">by</span> <span class="n">date</span><span class="o">/</span><span class="n">timeframe</span><span class="o">.</span> <span class="n">It</span> <span class="n">returns</span> <span class="n">a</span> <span class="n">string</span> <span class="n">pointer</span>
+<span class="o">//</span> <span class="n">to</span> <span class="n">be</span> <span class="n">used</span> <span class="n">by</span> <span class="n">the</span> <span class="n">AWS</span> <span class="n">SDK</span><span class="o">...</span>
+<span class="n">func</span> <span class="n">GenerateFilename</span><span class="p">()</span> <span class="o">*</span><span class="n">string</span> <span class="p">{</span>
+    <span class="n">s</span><span class="p">:</span><span class="o">=</span> <span class="s2">&quot;latest.json&quot;</span>
+<span class="o">//</span>  <span class="n">s</span> <span class="p">:</span><span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="n">FilenameFormatString</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">())</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="n">s</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Au lieu de faire un fichier différent à chaque test, le fichier distant sera écrasé. Pour pouvoir faire traiter le fichier par Grafana, cela sera plus simple.</p>
+<p>Il faut également modifier le Dockerfile:</p>
+<div class="highlight"><pre><span></span><code><span class="err">FROM golang:1.16.3-alpine as builder</span>
+<span class="err">ENV CGO_ENABLED=0</span>
+<span class="err">COPY . /app</span>
+<span class="err">WORKDIR /app</span>
+<span class="err">RUN apk --no-cache add make &amp;&amp; make build</span>
+<span class="err">FROM alpine:latest</span>
+<span class="err">WORKDIR /app</span>
+<span class="err">COPY --from=builder /app/builds/checkup /usr/local/bin/checkup</span>
+<span class="err">ADD statuspage/ /app/statuspage</span>
+<span class="err">RUN (echo &quot;*/5 * * * * cd /app &amp;&amp; checkup --store&quot;) | crontab -</span>
+<span class="err">CMD /bin/sh -c &quot;exec crond -f -L /dev/stdout &amp;&amp; cd /app &amp;&amp; checkup --store&quot;</span>
+</code></pre></div>
+
+<p>Cela permet d'automatiser les tests (toutes les 5 minutes), et également d'utiliser une image Golang plus moderne.</p>
+<h2>Compilation de l'image</h2>
+<p>Pour un processeur x86-64 classique:</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker buildx build --platform linux/amd64 -t monrepodocker.com/checkup --push .</span>
+</code></pre></div>
+
+<p>Pour un Raspberry Pi Zero W (à noter que celle-ci se passe sans problème sur l'architecture M1) :</p>
+<div class="highlight"><pre><span></span><code><span class="err">docker buildx build --platform linux/arm/v6 -t monrepodocker.com/checkup:maison1 --push .</span>
+</code></pre></div>
+
+<h1>Troisième étape: configuration d'un bucket S3</h1>
+<h2>Création du bucket</h2>
+<p>Créez votre bucket via l'interface ou via la cli, puis créer un utilisateur·ice avec un accès API. Notez bien l'access key et la secret key</p>
+<h2>Stratégie IAM pour l'utilisateur·ice</h2>
+<p>Un exemple de stratégie IAM pour l'utilisateur·ice:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:GetObject&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:DeleteObject&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:ListBucketMultipartUploads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:AbortMultipartUpload&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:ListMultipartUploadParts&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket&quot;</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;s3:ListBucketMultipartUploads&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:AbortMultipartUpload&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;s3:ListMultipartUploadParts&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket/*&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arn:aws:s3:::nombucket&quot;</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Stratégie pour le bucket</h2>
+<div class="highlight"><pre><span></span><code><span class="err">{</span>
+<span class="err">    &quot;Version&quot;: &quot;2012-10-17&quot;,</span>
+<span class="err">    &quot;Id&quot;: &quot;S3PolicyId1&quot;,</span>
+<span class="err">    &quot;Statement&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">            &quot;Sid&quot;: &quot;IPAllow&quot;,</span>
+<span class="err">            &quot;Effect&quot;: &quot;Allow&quot;,</span>
+<span class="err">            &quot;Principal&quot;: &quot;*&quot;,</span>
+<span class="err">            &quot;Action&quot;: &quot;s3:GetObject&quot;,</span>
+<span class="err">            &quot;Resource&quot;: &quot;ARN BUCKET/*&quot;,</span>
+<span class="err">            &quot;Condition&quot;: {</span>
+<span class="err">                &quot;IpAddress&quot;: {</span>
+<span class="err">                    &quot;aws:SourceIp&quot;: &quot;IP DE GRAFANA&quot;</span>
+<span class="err">                }</span>
+<span class="err">            }</span>
+<span class="err">        }</span>
+<span class="err">    ]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p>Remplacer les valeurs en majuscule (dans Resource et aws:SourceIp) et votre bucket sera prêt.</p>
+<h1>Quatrième étape: édition des tests et des notifications</h1>
+<h2>Édition de la configuration: checkup.json</h2>
+<p>Un fichier checkup.json complet:</p>
+<div class="highlight"><pre><span></span><code><span class="err">    {&quot;storage&quot;:{&quot;type&quot;:&quot;s3&quot;,&quot;access_key_id&quot;:&quot;ACCESS KEY ID S3&quot;,&quot;secret_access_key&quot;:&quot;SECRET ACCESS KEY S3&quot;,&quot;region&quot;:&quot;eu-west-3&quot;,&quot;bucket&quot;:&quot;BUCKET S3&quot;,&quot;check_expiry&quot;:604800000000000},</span>
+<span class="err">    &quot;notifiers&quot;:[{&quot;type&quot;: &quot;mail&quot;,&quot;from&quot;: &quot;POSTMASTER@EXAMPLE.COM&quot;,&quot;to&quot;: [ &quot;DESTINATAIRE@EXAMPLE.ORG&quot; ],&quot;subject&quot;: &quot;Status Alert&quot;,&quot;smtp&quot;: {&quot;server&quot;: &quot;SERVEUR MAIL&quot;,&quot;port&quot;: 587,&quot;username&quot;: &quot;POSTMASTER@EXAMPLE.COM&quot;,&quot;password&quot;: &quot;MOT DE PASSE POSTMASTER&quot;}},</span>
+<span class="err">    {&quot;type&quot;: &quot;slack&quot;,&quot;username&quot;: &quot;Status Bot (maison1)&quot;,&quot;channel&quot;: &quot;#système&quot;,&quot;webhook&quot;: &quot;WEBHOOK DISCORD&quot;/slack&quot;}],</span>
+<span class="err">    &quot;checkers&quot;:[{&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;Livebox&quot;,&quot;endpoint_url&quot;:&quot;172.16.0.1:443&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5},</span>
+<span class="err">   {&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;wifi1&quot;,&quot;endpoint_url&quot;:&quot;192.168.1.1:80&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5},</span>
+<span class="err">{&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;FreeNAS&quot;,&quot;endpoint_url&quot;:&quot;172.16.0.3:443&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5},</span>
+<span class="err">    {&quot;type&quot;: &quot;tcp&quot;,&quot;endpoint_name&quot;: &quot;FreeNAS SMB&quot;,&quot;endpoint_url&quot;: &quot;172.16.0.3:445&quot;},  </span>
+<span class="err">    {&quot;type&quot;: &quot;tcp&quot;,&quot;endpoint_name&quot;: &quot;Plex&quot;,&quot;endpoint_url&quot;: &quot;172.16.0.6:32400&quot;} ],</span>
+<span class="err">    &quot;timestamp&quot;:&quot;0001-01-01T00:00:00Z&quot;}</span>
+</code></pre></div>
+
+<p>En décomposant un peu, on a :</p>
+<h3>La configuration pour le bucket S3</h3>
+<div class="highlight"><pre><span></span><code><span class="err">    {&quot;storage&quot;:{&quot;type&quot;:&quot;s3&quot;,&quot;access_key_id&quot;:&quot;ACCESS KEY ID S3&quot;,&quot;secret_access_key&quot;:&quot;SECRET ACCESS KEY S3&quot;,&quot;region&quot;:&quot;REGION&quot;,&quot;bucket&quot;:&quot;BUCKET S3&quot;,&quot;check_expiry&quot;:604800000000000}</span>
+</code></pre></div>
+
+<p>Remplacer les valeurs en majuscule par celles obtenues précédemment, pour permettre la connexion au bucket.</p>
+<h3>La configuration des notifications mails et Discord</h3>
+<div class="highlight"><pre><span></span><code><span class="err">    &quot;notifiers&quot;:[{&quot;type&quot;: &quot;mail&quot;,&quot;from&quot;: &quot;POSTMASTER@EXAMPLE.COM&quot;,&quot;to&quot;: [ &quot;DESTINATAIRE@EXAMPLE.ORG&quot; ],&quot;subject&quot;: &quot;Status Alert&quot;,&quot;smtp&quot;: {&quot;server&quot;: &quot;SERVEUR MAIL&quot;,&quot;port&quot;: 587,&quot;username&quot;: &quot;POSTMASTER@EXAMPLE.COM&quot;,&quot;password&quot;: &quot;MOT DE PASSE POSTMASTER&quot;}}, {&quot;type&quot;: &quot;slack&quot;,&quot;username&quot;: &quot;Status Bot (maison1)&quot;,&quot;channel&quot;: &quot;#système&quot;,&quot;webhook&quot;: &quot;WEBHOOK DISCORD&quot;/slack&quot;}],</span>
+</code></pre></div>
+
+<p>Ici, c'est encore plus simple (il est toujours question de remplacer les valeurs en majuscule), évidemment pensez à créer un compte mail dédié pour limiter les risques.</p>
+<p>Pour la partie Discord, je vous renvoie vers la documentation <a href="https://support.discord.com/hc/fr/articles/228383668-Utiliser-les-Webhooks">Discord</a>.
+Remplacer 'WEBHOOK DISCORD" par l'URL de votre webhook, et gardez le /slack à la fin. C'est un mode de compatibilité particulièrement utile.</p>
+<h3>La configuration des tests</h3>
+<p><a href="https://github.com/sourcegraph/checkup/blob/master/README.md">La documentation est particulièrement claire</a> :</p>
+<div class="highlight"><pre><span></span><code>    <span class="o">####</span> <span class="n">HTTP</span> <span class="n">Checker</span>
+
+<span class="err">{</span>
+    <span class="ss">&quot;type&quot;</span><span class="p">:</span> <span class="ss">&quot;http&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="ss">&quot;Example HTTP&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_url&quot;</span><span class="p">:</span> <span class="ss">&quot;http://www.example.com&quot;</span>
+<span class="err">}</span>
+
+<span class="o">####</span> <span class="n">TCP</span> <span class="n">Checker</span>
+
+<span class="err">{</span>
+    <span class="ss">&quot;type&quot;</span><span class="p">:</span> <span class="ss">&quot;tcp&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="ss">&quot;Example TCP&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_url&quot;</span><span class="p">:</span> <span class="ss">&quot;example.com:80&quot;</span>
+<span class="err">}</span>
+
+<span class="o">####</span> <span class="n">DNS</span> <span class="n">Checkers</span>
+
+<span class="err">{</span>
+    <span class="ss">&quot;type&quot;</span><span class="p">:</span> <span class="ss">&quot;dns&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="ss">&quot;Example of endpoint_url looking up host.example.com&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_url&quot;</span><span class="p">:</span> <span class="ss">&quot;ns.example.com:53&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;hostname_fqdn&quot;</span><span class="p">:</span> <span class="ss">&quot;host.example.com&quot;</span>
+<span class="err">}</span>
+
+<span class="o">####</span> <span class="n">TLS</span> <span class="n">Checkers</span><span class="p">:</span>     
+<span class="err">{</span>
+    <span class="ss">&quot;type&quot;</span><span class="p">:</span> <span class="ss">&quot;tls&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="ss">&quot;Example TLS Protocol Check&quot;</span><span class="p">,</span>
+    <span class="ss">&quot;endpoint_url&quot;</span><span class="p">:</span> <span class="ss">&quot;www.example.com:443&quot;</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p>Dans mon cas, je teste seulement si les hôtes sont joignables, via un petit ping sur les ports censés répondre.</p>
+<div class="highlight"><pre><span></span><code><span class="err">&quot;checkers&quot;:[{&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;Livebox&quot;,&quot;endpoint_url&quot;:&quot;172.16.0.1:443&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5}, {&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;wifi1&quot;,&quot;endpoint_url&quot;:&quot;192.168.1.1:80&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5}, {&quot;type&quot;:&quot;tcp&quot;,&quot;endpoint_name&quot;:&quot;FreeNAS&quot;,&quot;endpoint_url&quot;:&quot;172.16.0.3:443&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5},</span>
+<span class="err">{&quot;type&quot;: &quot;tcp&quot;,&quot;endpoint_name&quot;: &quot;FreeNAS SMB&quot;,&quot;endpoint_url&quot;: &quot;172.16.0.3:445&quot;},</span>
+<span class="err">{&quot;type&quot;: &quot;tcp&quot;,&quot;endpoint_name&quot;: &quot;Plex&quot;,&quot;endpoint_url&quot;: &quot;172.16.0.6:32400&quot;}],</span>
+</code></pre></div>
+
+<p>Ci-dessous, le test de mon Shaarli. Attention, les tests HTTP sont sensibles aux redirections, en cas de retour d'un code HTTP 302, le service est considéré comme DOWN.</p>
+<div class="highlight"><pre><span></span><code><span class="err">{&quot;type&quot;:&quot;http&quot;,&quot;endpoint_name&quot;:&quot;Shaarli&quot;,&quot;endpoint_url&quot;:&quot;https://links.maxime.sourdin.ovh&quot;,&quot;threshold_rtt&quot;:500000000,&quot;attempts&quot;:5}</span>
+</code></pre></div>
+
+<h3>Le format pour l'horodatage</h3>
+<div class="highlight"><pre><span></span><code><span class="err">&quot;timestamp&quot;:&quot;0001-01-01T00:00:00Z&quot;}</span>
+</code></pre></div>
+
+<h2>Sécurisation du fichier checkup.json</h2>
+<p>Etant donné que le conteneur est exécuté avec l'utilisateur·ice courant·e, pensez à appliquer les bonnes autorisations au fichier, vu qu'il contient de quoi accéder à un bucket et de quoi accéder à une boite mail:</p>
+<div class="highlight"><pre><span></span><code><span class="err">chmod 600 checkup.json</span>
+</code></pre></div>
+
+<p>En cas de soucis avec le bucket, le peu d'informations qui pourront être retirées sont des ports pour se connecter et des URL, par exemple :</p>
+<div class="highlight"><pre><span></span><code><span class="err">[{&quot;title&quot;:&quot;Livebox&quot;,&quot;endpoint&quot;:&quot;172.16.0.1:443&quot;,&quot;timestamp&quot;:1620243308993278950,&quot;times&quot;:[{&quot;rtt&quot;:20929892},{&quot;rtt&quot;:48361749},{&quot;rtt&quot;:23045881},{&quot;rtt&quot;:35709815},{&quot;rtt&quot;:36920809}],&quot;threshold&quot;:500000000,&quot;healthy&quot;:true},{&quot;title&quot;:&quot;wifi1&quot;,&quot;endpoint&quot;:&quot;192.168.1.1:80&quot;,&quot;timestamp&quot;:1620243308994907941,&quot;times&quot;:[{&quot;rtt&quot;:27225859},{&quot;rtt&quot;:34943819},{&quot;rtt&quot;:39484795},{&quot;rtt&quot;:30538842},{&quot;rtt&quot;:29570846}],&quot;threshold&quot;:500000000,&quot;healthy&quot;:true},{&quot;title&quot;:&quot;FreeNAS&quot;,&quot;endpoint&quot;:&quot;172.16.0.3:443&quot;,&quot;timestamp&quot;:1620243308996989931,&quot;times&quot;:[{&quot;rtt&quot;:51494733},{&quot;rtt&quot;:38261802},{&quot;rtt&quot;:23417879},{&quot;rtt&quot;:37854803},{&quot;rtt&quot;:13516930}],&quot;threshold&quot;:500000000,&quot;healthy&quot;:true},{&quot;title&quot;:&quot;FreeNAS SMB&quot;,&quot;endpoint&quot;:&quot;172.16.0.3:445&quot;,&quot;timestamp&quot;:1620243309000877911,&quot;times&quot;:[{&quot;rtt&quot;:38250802}],&quot;healthy&quot;:true},{&quot;title&quot;:&quot;Plex&quot;,&quot;endpoint&quot;:&quot;172.16.0.6:32400&quot;,&quot;timestamp&quot;:1620243308975109044,&quot;times&quot;:[{&quot;rtt&quot;:61374682}],&quot;healthy&quot;:true}]</span>
+</code></pre></div>
+
+<h1>Cinquième étape : utilisation dans Grafana</h1>
+<h2>Configuration de la datasource</h2>
+<p>Dans Paramétres/Datasources, sélectionnez "Infinity".
+Donnez lui un nom, et pour l'URL, il suffit d'indiquer celle du bucket (sans mot de passe, ni nom de fichier à la fin de celle-ci).</p>
+<p>Après avoir cliqué sur "Save &amp; Test", cette source sera disponible.</p>
+<h2>Ajout d'un panel</h2>
+<p>Sur un nouveau dashboard, ou un existant, ajoutez un panel, et sélectionnez la datasource créée précédemment.</p>
+<p>Dans l'URL, indiquez le nom de votre fichier (comme latest.json par exemple), normalement le passage en mode table de l'affichage sera proposé. Il ne restera plus qu'à sélectionner les colonnes intéressantes, et à les renommer, en se servant de ce que Grafana permet.</p>
+<p><img alt="Panel Grafana, où l'affichage des données récupérées est paramétré : chaque colonne est renommée correctement (Service, Value et URL au lieu de title, endpoint, timestamp, times, thresold, healthy)" src="https://maxime.sourdin.ovh/medias/checkup-grafana-2.png"></p>
+<h2>Exemple de dashboard</h2>
+<h3>JSON</h3>
+<div class="highlight"><pre><span></span><code><span class="err">{</span>
+<span class="err">&quot;annotations&quot;: {</span>
+<span class="err">    &quot;list&quot;: [</span>
+<span class="err">    {</span>
+<span class="err">        &quot;builtIn&quot;: 1,</span>
+<span class="err">        &quot;datasource&quot;: &quot;-- Grafana --&quot;,</span>
+<span class="err">        &quot;enable&quot;: true,</span>
+<span class="err">        &quot;hide&quot;: true,</span>
+<span class="err">        &quot;iconColor&quot;: &quot;rgba(0, 211, 255, 1)&quot;,</span>
+<span class="err">        &quot;name&quot;: &quot;Annotations &amp; Alerts&quot;,</span>
+<span class="err">        &quot;type&quot;: &quot;dashboard&quot;</span>
+<span class="err">    }</span>
+<span class="err">    ]</span>
+<span class="err">},</span>
+<span class="err">&quot;editable&quot;: true,</span>
+<span class="err">&quot;gnetId&quot;: null,</span>
+<span class="err">&quot;graphTooltip&quot;: 0,</span>
+<span class="err">&quot;id&quot;: 18,</span>
+<span class="err">&quot;links&quot;: [],</span>
+<span class="err">&quot;panels&quot;: [</span>
+<span class="err">    {</span>
+<span class="err">    &quot;datasource&quot;: &quot;statuspage&quot;,</span>
+<span class="err">    &quot;description&quot;: &quot;&quot;,</span>
+<span class="err">    &quot;fieldConfig&quot;: {</span>
+<span class="err">        &quot;defaults&quot;: {</span>
+<span class="err">        &quot;color&quot;: {</span>
+<span class="err">            &quot;mode&quot;: &quot;thresholds&quot;</span>
+<span class="err">        },</span>
+<span class="err">        &quot;custom&quot;: {</span>
+<span class="err">            &quot;align&quot;: null,</span>
+<span class="err">            &quot;displayMode&quot;: &quot;color-text&quot;,</span>
+<span class="err">            &quot;filterable&quot;: false</span>
+<span class="err">        },</span>
+<span class="err">        &quot;mappings&quot;: [],</span>
+<span class="err">        &quot;noValue&quot;: &quot;KO&quot;,</span>
+<span class="err">        &quot;thresholds&quot;: {</span>
+<span class="err">            &quot;mode&quot;: &quot;absolute&quot;,</span>
+<span class="err">            &quot;steps&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;color&quot;: &quot;red&quot;,</span>
+<span class="err">                &quot;value&quot;: null</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        }</span>
+<span class="err">        },</span>
+<span class="err">        &quot;overrides&quot;: []</span>
+<span class="err">    },</span>
+<span class="err">    &quot;gridPos&quot;: {</span>
+<span class="err">        &quot;h&quot;: 20,</span>
+<span class="err">        &quot;w&quot;: 12,</span>
+<span class="err">        &quot;x&quot;: 0,</span>
+<span class="err">        &quot;y&quot;: 0</span>
+<span class="err">    },</span>
+<span class="err">    &quot;id&quot;: 3,</span>
+<span class="err">    &quot;options&quot;: {</span>
+<span class="err">        &quot;showHeader&quot;: true,</span>
+<span class="err">        &quot;sortBy&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">            &quot;desc&quot;: false,</span>
+<span class="err">            &quot;displayName&quot;: &quot;Service&quot;</span>
+<span class="err">        }</span>
+<span class="err">        ]</span>
+<span class="err">    },</span>
+<span class="err">    &quot;pluginVersion&quot;: &quot;7.5.5&quot;,</span>
+<span class="err">    &quot;targets&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">        &quot;columns&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;title&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;Service&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            },</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;healthy&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;Value&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            },</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;endpoint&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;URL&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;filters&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;field&quot;: &quot;Value&quot;,</span>
+<span class="err">            &quot;operator&quot;: &quot;in&quot;,</span>
+<span class="err">            &quot;value&quot;: [</span>
+<span class="err">                &quot;&quot;</span>
+<span class="err">            ]</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;format&quot;: &quot;table&quot;,</span>
+<span class="err">        &quot;global_query_id&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;hide&quot;: false,</span>
+<span class="err">        &quot;query_mode&quot;: &quot;standard&quot;,</span>
+<span class="err">        &quot;refId&quot;: &quot;A&quot;,</span>
+<span class="err">        &quot;root_selector&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;source&quot;: &quot;url&quot;,</span>
+<span class="err">        &quot;type&quot;: &quot;json&quot;,</span>
+<span class="err">        &quot;url&quot;: &quot;latest.json&quot;,</span>
+<span class="err">        &quot;url_options&quot;: {</span>
+<span class="err">            &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;method&quot;: &quot;GET&quot;</span>
+<span class="err">        }</span>
+<span class="err">        }</span>
+<span class="err">    ],</span>
+<span class="err">    &quot;title&quot;: &quot;Services KO&quot;,</span>
+<span class="err">    &quot;transformations&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">        &quot;id&quot;: &quot;organize&quot;,</span>
+<span class="err">        &quot;options&quot;: {</span>
+<span class="err">            &quot;excludeByName&quot;: {</span>
+<span class="err">            &quot;Value&quot;: true,</span>
+<span class="err">            &quot;endpoint&quot;: true,</span>
+<span class="err">            &quot;threshold&quot;: true,</span>
+<span class="err">            &quot;times&quot;: true,</span>
+<span class="err">            &quot;timestamp&quot;: true</span>
+<span class="err">            },</span>
+<span class="err">            &quot;indexByName&quot;: {},</span>
+<span class="err">            &quot;renameByName&quot;: {</span>
+<span class="err">            &quot;endpoint&quot;: &quot;URL&quot;,</span>
+<span class="err">            &quot;healthy&quot;: &quot;Statut&quot;,</span>
+<span class="err">            &quot;title&quot;: &quot;Service&quot;</span>
+<span class="err">            }</span>
+<span class="err">        }</span>
+<span class="err">        }</span>
+<span class="err">    ],</span>
+<span class="err">    &quot;type&quot;: &quot;table&quot;</span>
+<span class="err">    },</span>
+<span class="err">    {</span>
+<span class="err">    &quot;datasource&quot;: &quot;statuspage&quot;,</span>
+<span class="err">    &quot;description&quot;: &quot;&quot;,</span>
+<span class="err">    &quot;fieldConfig&quot;: {</span>
+<span class="err">        &quot;defaults&quot;: {</span>
+<span class="err">        &quot;color&quot;: {</span>
+<span class="err">            &quot;mode&quot;: &quot;thresholds&quot;</span>
+<span class="err">        },</span>
+<span class="err">        &quot;custom&quot;: {</span>
+<span class="err">            &quot;align&quot;: null,</span>
+<span class="err">            &quot;displayMode&quot;: &quot;color-text&quot;,</span>
+<span class="err">            &quot;filterable&quot;: false</span>
+<span class="err">        },</span>
+<span class="err">        &quot;mappings&quot;: [],</span>
+<span class="err">        &quot;noValue&quot;: &quot;KO&quot;,</span>
+<span class="err">        &quot;thresholds&quot;: {</span>
+<span class="err">            &quot;mode&quot;: &quot;absolute&quot;,</span>
+<span class="err">            &quot;steps&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;color&quot;: &quot;red&quot;,</span>
+<span class="err">                &quot;value&quot;: null</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        }</span>
+<span class="err">        },</span>
+<span class="err">        &quot;overrides&quot;: []</span>
+<span class="err">    },</span>
+<span class="err">    &quot;gridPos&quot;: {</span>
+<span class="err">        &quot;h&quot;: 20,</span>
+<span class="err">        &quot;w&quot;: 12,</span>
+<span class="err">        &quot;x&quot;: 12,</span>
+<span class="err">        &quot;y&quot;: 0</span>
+<span class="err">    },</span>
+<span class="err">    &quot;id&quot;: 5,</span>
+<span class="err">    &quot;options&quot;: {</span>
+<span class="err">        &quot;showHeader&quot;: true,</span>
+<span class="err">        &quot;sortBy&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">            &quot;desc&quot;: false,</span>
+<span class="err">            &quot;displayName&quot;: &quot;Service&quot;</span>
+<span class="err">        }</span>
+<span class="err">        ]</span>
+<span class="err">    },</span>
+<span class="err">    &quot;pluginVersion&quot;: &quot;7.5.5&quot;,</span>
+<span class="err">    &quot;targets&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">        &quot;columns&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;title&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;Service&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            },</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;healthy&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;Value&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            },</span>
+<span class="err">            {</span>
+<span class="err">            &quot;selector&quot;: &quot;endpoint&quot;,</span>
+<span class="err">            &quot;text&quot;: &quot;URL&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;filters&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;field&quot;: &quot;Value&quot;,</span>
+<span class="err">            &quot;operator&quot;: &quot;in&quot;,</span>
+<span class="err">            &quot;value&quot;: [</span>
+<span class="err">                &quot;&quot;</span>
+<span class="err">            ]</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;format&quot;: &quot;table&quot;,</span>
+<span class="err">        &quot;global_query_id&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;hide&quot;: false,</span>
+<span class="err">        &quot;query_mode&quot;: &quot;standard&quot;,</span>
+<span class="err">        &quot;refId&quot;: &quot;A&quot;,</span>
+<span class="err">        &quot;root_selector&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;source&quot;: &quot;url&quot;,</span>
+<span class="err">        &quot;type&quot;: &quot;json&quot;,</span>
+<span class="err">        &quot;url&quot;: &quot;maison.json&quot;,</span>
+<span class="err">        &quot;url_options&quot;: {</span>
+<span class="err">            &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;method&quot;: &quot;GET&quot;</span>
+<span class="err">        }</span>
+<span class="err">        }</span>
+<span class="err">    ],</span>
+<span class="err">    &quot;title&quot;: &quot;Maison KO&quot;,</span>
+<span class="err">    &quot;transformations&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">        &quot;id&quot;: &quot;organize&quot;,</span>
+<span class="err">        &quot;options&quot;: {</span>
+<span class="err">            &quot;excludeByName&quot;: {</span>
+<span class="err">            &quot;Value&quot;: true,</span>
+<span class="err">            &quot;endpoint&quot;: true,</span>
+<span class="err">            &quot;threshold&quot;: true,</span>
+<span class="err">            &quot;times&quot;: true,</span>
+<span class="err">            &quot;timestamp&quot;: true</span>
+<span class="err">            },</span>
+<span class="err">            &quot;indexByName&quot;: {},</span>
+<span class="err">            &quot;renameByName&quot;: {</span>
+<span class="err">            &quot;endpoint&quot;: &quot;URL&quot;,</span>
+<span class="err">            &quot;healthy&quot;: &quot;Statut&quot;,</span>
+<span class="err">            &quot;title&quot;: &quot;Service&quot;</span>
+<span class="err">            }</span>
+<span class="err">        }</span>
+<span class="err">        }</span>
+<span class="err">    ],</span>
+<span class="err">    &quot;type&quot;: &quot;table&quot;</span>
+<span class="err">    },</span>
+<span class="err">    {</span>
+<span class="err">    &quot;collapsed&quot;: true,</span>
+<span class="err">    &quot;datasource&quot;: null,</span>
+<span class="err">    &quot;gridPos&quot;: {</span>
+<span class="err">        &quot;h&quot;: 1,</span>
+<span class="err">        &quot;w&quot;: 24,</span>
+<span class="err">        &quot;x&quot;: 0,</span>
+<span class="err">        &quot;y&quot;: 20</span>
+<span class="err">    },</span>
+<span class="err">    &quot;id&quot;: 7,</span>
+<span class="err">    &quot;panels&quot;: [</span>
+<span class="err">        {</span>
+<span class="err">        &quot;datasource&quot;: &quot;statuspage&quot;,</span>
+<span class="err">        &quot;description&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;fieldConfig&quot;: {</span>
+<span class="err">            &quot;defaults&quot;: {</span>
+<span class="err">            &quot;color&quot;: {</span>
+<span class="err">                &quot;mode&quot;: &quot;thresholds&quot;</span>
+<span class="err">            },</span>
+<span class="err">            &quot;custom&quot;: {</span>
+<span class="err">                &quot;align&quot;: null,</span>
+<span class="err">                &quot;displayMode&quot;: &quot;color-text&quot;,</span>
+<span class="err">                &quot;filterable&quot;: false</span>
+<span class="err">            },</span>
+<span class="err">            &quot;mappings&quot;: [],</span>
+<span class="err">            &quot;noValue&quot;: &quot;KO&quot;,</span>
+<span class="err">            &quot;thresholds&quot;: {</span>
+<span class="err">                &quot;mode&quot;: &quot;absolute&quot;,</span>
+<span class="err">                &quot;steps&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                    &quot;color&quot;: &quot;green&quot;,</span>
+<span class="err">                    &quot;value&quot;: null</span>
+<span class="err">                }</span>
+<span class="err">                ]</span>
+<span class="err">            }</span>
+<span class="err">            },</span>
+<span class="err">            &quot;overrides&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;matcher&quot;: {</span>
+<span class="err">                &quot;id&quot;: &quot;byName&quot;,</span>
+<span class="err">                &quot;options&quot;: &quot;Service&quot;</span>
+<span class="err">                },</span>
+<span class="err">                &quot;properties&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                    &quot;id&quot;: &quot;custom.width&quot;,</span>
+<span class="err">                    &quot;value&quot;: 175</span>
+<span class="err">                }</span>
+<span class="err">                ]</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        },</span>
+<span class="err">        &quot;gridPos&quot;: {</span>
+<span class="err">            &quot;h&quot;: 22,</span>
+<span class="err">            &quot;w&quot;: 12,</span>
+<span class="err">            &quot;x&quot;: 0,</span>
+<span class="err">            &quot;y&quot;: 21</span>
+<span class="err">        },</span>
+<span class="err">        &quot;id&quot;: 2,</span>
+<span class="err">        &quot;options&quot;: {</span>
+<span class="err">            &quot;showHeader&quot;: true,</span>
+<span class="err">            &quot;sortBy&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;desc&quot;: false,</span>
+<span class="err">                &quot;displayName&quot;: &quot;Service&quot;</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        },</span>
+<span class="err">        &quot;pluginVersion&quot;: &quot;7.5.5&quot;,</span>
+<span class="err">        &quot;targets&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;columns&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;title&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;Service&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                },</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;healthy&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;Value&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                },</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;endpoint&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;URL&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                }</span>
+<span class="err">            ],</span>
+<span class="err">            &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;filters&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                &quot;field&quot;: &quot;Value&quot;,</span>
+<span class="err">                &quot;operator&quot;: &quot;notin&quot;,</span>
+<span class="err">                &quot;value&quot;: [</span>
+<span class="err">                    &quot;&quot;</span>
+<span class="err">                ]</span>
+<span class="err">                }</span>
+<span class="err">            ],</span>
+<span class="err">            &quot;format&quot;: &quot;table&quot;,</span>
+<span class="err">            &quot;global_query_id&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;hide&quot;: false,</span>
+<span class="err">            &quot;query_mode&quot;: &quot;standard&quot;,</span>
+<span class="err">            &quot;refId&quot;: &quot;A&quot;,</span>
+<span class="err">            &quot;root_selector&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;source&quot;: &quot;url&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;json&quot;,</span>
+<span class="err">            &quot;url&quot;: &quot;latest.json&quot;,</span>
+<span class="err">            &quot;url_options&quot;: {</span>
+<span class="err">                &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">                &quot;method&quot;: &quot;GET&quot;</span>
+<span class="err">            }</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;title&quot;: &quot;Services OK&quot;,</span>
+<span class="err">        &quot;transformations&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;id&quot;: &quot;organize&quot;,</span>
+<span class="err">            &quot;options&quot;: {</span>
+<span class="err">                &quot;excludeByName&quot;: {</span>
+<span class="err">                &quot;Value&quot;: true,</span>
+<span class="err">                &quot;endpoint&quot;: true,</span>
+<span class="err">                &quot;threshold&quot;: true,</span>
+<span class="err">                &quot;times&quot;: true,</span>
+<span class="err">                &quot;timestamp&quot;: true</span>
+<span class="err">                },</span>
+<span class="err">                &quot;indexByName&quot;: {},</span>
+<span class="err">                &quot;renameByName&quot;: {</span>
+<span class="err">                &quot;endpoint&quot;: &quot;URL&quot;,</span>
+<span class="err">                &quot;healthy&quot;: &quot;Statut&quot;,</span>
+<span class="err">                &quot;title&quot;: &quot;Service&quot;</span>
+<span class="err">                }</span>
+<span class="err">            }</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;type&quot;: &quot;table&quot;</span>
+<span class="err">        },</span>
+<span class="err">        {</span>
+<span class="err">        &quot;datasource&quot;: &quot;statuspage&quot;,</span>
+<span class="err">        &quot;description&quot;: &quot;&quot;,</span>
+<span class="err">        &quot;fieldConfig&quot;: {</span>
+<span class="err">            &quot;defaults&quot;: {</span>
+<span class="err">            &quot;color&quot;: {</span>
+<span class="err">                &quot;mode&quot;: &quot;thresholds&quot;</span>
+<span class="err">            },</span>
+<span class="err">            &quot;custom&quot;: {</span>
+<span class="err">                &quot;align&quot;: null,</span>
+<span class="err">                &quot;displayMode&quot;: &quot;color-text&quot;,</span>
+<span class="err">                &quot;filterable&quot;: false</span>
+<span class="err">            },</span>
+<span class="err">            &quot;mappings&quot;: [],</span>
+<span class="err">            &quot;noValue&quot;: &quot;KO&quot;,</span>
+<span class="err">            &quot;thresholds&quot;: {</span>
+<span class="err">                &quot;mode&quot;: &quot;absolute&quot;,</span>
+<span class="err">                &quot;steps&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                    &quot;color&quot;: &quot;green&quot;,</span>
+<span class="err">                    &quot;value&quot;: null</span>
+<span class="err">                }</span>
+<span class="err">                ]</span>
+<span class="err">            }</span>
+<span class="err">            },</span>
+<span class="err">            &quot;overrides&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;matcher&quot;: {</span>
+<span class="err">                &quot;id&quot;: &quot;byName&quot;,</span>
+<span class="err">                &quot;options&quot;: &quot;Service&quot;</span>
+<span class="err">                },</span>
+<span class="err">                &quot;properties&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                    &quot;id&quot;: &quot;custom.width&quot;,</span>
+<span class="err">                    &quot;value&quot;: 175</span>
+<span class="err">                }</span>
+<span class="err">                ]</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        },</span>
+<span class="err">        &quot;gridPos&quot;: {</span>
+<span class="err">            &quot;h&quot;: 22,</span>
+<span class="err">            &quot;w&quot;: 12,</span>
+<span class="err">            &quot;x&quot;: 12,</span>
+<span class="err">            &quot;y&quot;: 21</span>
+<span class="err">        },</span>
+<span class="err">        &quot;id&quot;: 4,</span>
+<span class="err">        &quot;options&quot;: {</span>
+<span class="err">            &quot;showHeader&quot;: true,</span>
+<span class="err">            &quot;sortBy&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">                &quot;desc&quot;: false,</span>
+<span class="err">                &quot;displayName&quot;: &quot;Service&quot;</span>
+<span class="err">            }</span>
+<span class="err">            ]</span>
+<span class="err">        },</span>
+<span class="err">        &quot;pluginVersion&quot;: &quot;7.5.5&quot;,</span>
+<span class="err">        &quot;targets&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;columns&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;title&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;Service&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                },</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;healthy&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;Value&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                },</span>
+<span class="err">                {</span>
+<span class="err">                &quot;selector&quot;: &quot;endpoint&quot;,</span>
+<span class="err">                &quot;text&quot;: &quot;URL&quot;,</span>
+<span class="err">                &quot;type&quot;: &quot;string&quot;</span>
+<span class="err">                }</span>
+<span class="err">            ],</span>
+<span class="err">            &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;filters&quot;: [</span>
+<span class="err">                {</span>
+<span class="err">                &quot;field&quot;: &quot;Value&quot;,</span>
+<span class="err">                &quot;operator&quot;: &quot;notin&quot;,</span>
+<span class="err">                &quot;value&quot;: [</span>
+<span class="err">                    &quot;&quot;</span>
+<span class="err">                ]</span>
+<span class="err">                }</span>
+<span class="err">            ],</span>
+<span class="err">            &quot;format&quot;: &quot;table&quot;,</span>
+<span class="err">            &quot;global_query_id&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;hide&quot;: false,</span>
+<span class="err">            &quot;query_mode&quot;: &quot;standard&quot;,</span>
+<span class="err">            &quot;refId&quot;: &quot;A&quot;,</span>
+<span class="err">            &quot;root_selector&quot;: &quot;&quot;,</span>
+<span class="err">            &quot;source&quot;: &quot;url&quot;,</span>
+<span class="err">            &quot;type&quot;: &quot;json&quot;,</span>
+<span class="err">            &quot;url&quot;: &quot;maison.json&quot;,</span>
+<span class="err">            &quot;url_options&quot;: {</span>
+<span class="err">                &quot;data&quot;: &quot;&quot;,</span>
+<span class="err">                &quot;method&quot;: &quot;GET&quot;</span>
+<span class="err">            }</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;title&quot;: &quot;Maison OK&quot;,</span>
+<span class="err">        &quot;transformations&quot;: [</span>
+<span class="err">            {</span>
+<span class="err">            &quot;id&quot;: &quot;organize&quot;,</span>
+<span class="err">            &quot;options&quot;: {</span>
+<span class="err">                &quot;excludeByName&quot;: {</span>
+<span class="err">                &quot;Value&quot;: true,</span>
+<span class="err">                &quot;endpoint&quot;: true,</span>
+<span class="err">                &quot;threshold&quot;: true,</span>
+<span class="err">                &quot;times&quot;: true,</span>
+<span class="err">                &quot;timestamp&quot;: true</span>
+<span class="err">                },</span>
+<span class="err">                &quot;indexByName&quot;: {},</span>
+<span class="err">                &quot;renameByName&quot;: {</span>
+<span class="err">                &quot;endpoint&quot;: &quot;URL&quot;,</span>
+<span class="err">                &quot;healthy&quot;: &quot;Statut&quot;,</span>
+<span class="err">                &quot;title&quot;: &quot;Service&quot;</span>
+<span class="err">                }</span>
+<span class="err">            }</span>
+<span class="err">            }</span>
+<span class="err">        ],</span>
+<span class="err">        &quot;type&quot;: &quot;table&quot;</span>
+<span class="err">        }</span>
+<span class="err">    ],</span>
+<span class="err">    &quot;title&quot;: &quot;OK&quot;,</span>
+<span class="err">    &quot;type&quot;: &quot;row&quot;</span>
+<span class="err">    }</span>
+<span class="err">],</span>
+<span class="err">&quot;schemaVersion&quot;: 27,</span>
+<span class="err">&quot;style&quot;: &quot;dark&quot;,</span>
+<span class="err">&quot;tags&quot;: [],</span>
+<span class="err">&quot;templating&quot;: {</span>
+<span class="err">    &quot;list&quot;: []</span>
+<span class="err">},</span>
+<span class="err">&quot;time&quot;: {</span>
+<span class="err">    &quot;from&quot;: &quot;now-5m&quot;,</span>
+<span class="err">    &quot;to&quot;: &quot;now&quot;</span>
+<span class="err">},</span>
+<span class="err">&quot;timepicker&quot;: {},</span>
+<span class="err">&quot;timezone&quot;: &quot;&quot;,</span>
+<span class="err">&quot;title&quot;: &quot;Status Page&quot;,</span>
+<span class="err">&quot;uid&quot;: &quot;IERYjr9Mk&quot;,</span>
+<span class="err">&quot;version&quot;: 12</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3>Capture d'écran du dashboard final</h3>
+<p><img alt="Dashboard Grafana, où il y a quatre panels : deux sont vides, et remontent les services KO, et deux autres sont pleins, et donnent la liste des services fonctionnant correctement" src="https://maxime.sourdin.ovh/medias/checkup-grafana-1.png"></p>
+<h3>Capture d'écran d'un mail d'alerte</h3>
+<p><img alt="Mail d'alerte : &quot;Checkup has detected the following issues: Autoblog - Status degraded, Kanboard - Status degraded, Notes - Status degraded, Wallabag - Status degraded " src="https://maxime.sourdin.ovh/medias/checkup-grafana-3.png"></p>
+<h3>Capture d'écran d'une alerte sur Discord</h3>
+<p><img alt="Messages Discord : Notes (Status DEGRADED) et Wallabag (Status DEGRADED)" src="https://maxime.sourdin.ovh/medias/checkup-grafana-4.png"></p>
+<h1>Fichier docker-compose final</h1>
+<div class="highlight"><pre><span></span><code><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span>
+  <span class="n">grafana</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">grafana</span><span class="o">/</span><span class="n">grafana</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">grafana</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s2">&quot;UID:UID&quot;</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">grafana</span><span class="o">/</span><span class="n">data</span><span class="p">:</span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">grafana</span>
+    <span class="n">networks</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">monitoring</span>
+    <span class="n">healthcheck</span><span class="p">:</span>
+      <span class="n">test</span><span class="p">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">f</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">3000</span> <span class="o">||</span> <span class="n">exit</span> <span class="mi">1</span>
+      <span class="n">interval</span><span class="p">:</span> <span class="mi">30</span><span class="n">s</span>
+      <span class="n">retries</span><span class="p">:</span> <span class="mi">3</span>
+ <span class="n">prometheus</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">prom</span><span class="o">/</span><span class="n">prometheus</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">prometheus</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s2">&quot;UID:UID&quot;</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">prometheus</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">prometheus</span><span class="o">/</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">prometheus</span><span class="o">/</span><span class="n">data</span><span class="p">:</span><span class="o">/</span><span class="n">prometheus</span>
+    <span class="n">command</span><span class="p">:</span>
+      <span class="o">-</span> <span class="s1">&#39;--config.file=/etc/prometheus/prometheus.yml&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--storage.tsdb.path=/prometheus&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--web.console.libraries=/etc/prometheus/console_libraries&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--web.console.templates=/etc/prometheus/consoles&#39;</span>
+      <span class="o">-</span> <span class="s1">&#39;--storage.tsdb.retention=200h&#39;</span>
+    <span class="n">networks</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">monitoring</span>
+    <span class="n">healthcheck</span><span class="p">:</span>
+      <span class="n">test</span><span class="p">:</span> <span class="n">curl</span> <span class="o">-</span><span class="n">f</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">9090</span> <span class="o">||</span> <span class="n">exit</span> <span class="mi">1</span>
+      <span class="n">interval</span><span class="p">:</span> <span class="mi">30</span><span class="n">s</span>
+      <span class="n">retries</span><span class="p">:</span> <span class="mi">3</span>
+ <span class="n">checkup</span><span class="p">:</span>
+    <span class="n">hostname</span><span class="p">:</span> <span class="n">checkup</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">monrepodocker</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">checkup</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">user</span><span class="p">:</span> <span class="s2">&quot;UID:UID&quot;</span>
+    <span class="n">volumes</span><span class="p">:</span>
+     <span class="o">-</span> <span class="o">./</span><span class="n">checkup</span><span class="o">/</span><span class="n">checkup</span><span class="o">.</span><span class="n">json</span><span class="p">:</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="n">checkup</span><span class="o">.</span><span class="n">json</span><span class="p">:</span><span class="n">ro</span>
+     <span class="o">-</span> <span class="o">./</span><span class="n">checkup</span><span class="o">/</span><span class="n">checks</span><span class="p">:</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="n">checks</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+<span class="n">networks</span><span class="p">:</span>
+  <span class="n">monitoring</span><span class="p">:</span>
+    <span class="n">driver</span><span class="p">:</span> <span class="n">bridge</span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

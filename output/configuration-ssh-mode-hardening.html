@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Configuration SSH, mode hardening | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/configuration-ssh-mode-hardening.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Atom Feed"
+        href="https://maxime.sourdin.ovh/atom.xml">  
+  <meta name="description" content="Configuration simple et solide de SSH">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://gitlab.com/maximesrd" target="_blank">gitlab</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/atom.xml" target="_blank">feed</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin.html" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Configuration SSH, mode hardening
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-07-03T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Jul 03, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/hardening.html">Hardening</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/ssh.html">#SSH</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h1>Serveur</h1>
+<h2>/etc/ssh/sshd_config</h2>
+<div class="highlight"><pre><span></span><code><span class="err">Port 2417</span>
+<span class="err">ListenAddress 0.0.0.0</span>
+<span class="err">HostKey &quot;/etc/ssh/ssh_host_ed25519_key&quot;</span>
+<span class="err">KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256</span>
+<span class="err">Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr</span>
+<span class="err">MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com</span>
+<span class="err">LogLevel VERBOSE</span>
+<span class="err">AuthenticationMethods publickey</span>
+<span class="err">LoginGraceTime 5m</span>
+<span class="err">PermitRootLogin no</span>
+<span class="err">MaxAuthTries 2</span>
+<span class="err">MaxSessions 6</span>
+<span class="err">PubkeyAuthentication yes</span>
+<span class="err">PermitEmptyPasswords no</span>
+<span class="err">ChallengeResponseAuthentication yes</span>
+<span class="err">UsePAM yes</span>
+<span class="err">X11Forwarding no</span>
+<span class="err">X11UseLocalhost no</span>
+<span class="err">PrintMotd no</span>
+<span class="err">Compression no</span>
+<span class="err">AllowTcpForwarding yes</span>
+<span class="err">GatewayPorts yes</span>
+<span class="err">ClientAliveCountMax 2</span>
+<span class="err">TCPKeepAlive no</span>
+<span class="err">AllowAgentForwarding no</span>
+<span class="err">AcceptEnv LANG LC_*</span>
+<span class="err">Subsystem sftp /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO</span>
+<span class="err">UseDNS no</span>
+</code></pre></div>
+
+<h1>Client</h1>
+<h2>Génération de la clé publique et de la clé privée, en utilisant l’algo ed25519, avec une clé de 4096 bits</h2>
+<div class="highlight"><pre><span></span><code><span class="n">ssh</span><span class="o">-</span><span class="n">keygen</span><span class="w"> </span><span class="o">-</span><span class="n">t</span><span class="w"> </span><span class="n">ed25519</span><span class="w"> </span><span class="o">-</span><span class="n">b</span><span class="w"> </span><span class="mi">4096</span><span class="w"></span>
+
+<span class="n">Generating</span><span class="w"> </span><span class="k">public</span><span class="o">/</span><span class="n">private</span><span class="w"> </span><span class="n">ed25519</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="n">pair</span><span class="p">.</span><span class="w"></span>
+<span class="n">Enter</span><span class="w"> </span><span class="k">file</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">save</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">pc</span><span class="o">/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_ed25519</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+<span class="n">Enter</span><span class="w"> </span><span class="n">passphrase</span><span class="w"> </span><span class="p">(</span><span class="n">empty</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="n">passphrase</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+<span class="n">Enter</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="n">passphrase</span><span class="w"> </span><span class="nl">again</span><span class="p">:</span><span class="w"></span>
+<span class="n">Your</span><span class="w"> </span><span class="n">identification</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">been</span><span class="w"> </span><span class="n">saved</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">pc</span><span class="o">/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_ed25519</span><span class="p">.</span><span class="w"></span>
+<span class="n">Your</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">been</span><span class="w"> </span><span class="n">saved</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">pc</span><span class="o">/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_ed25519</span><span class="p">.</span><span class="n">pub</span><span class="p">.</span><span class="w"></span>
+<span class="n">The</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="n">fingerprint</span><span class="w"> </span><span class="k">is</span><span class="err">:</span><span class="w"></span>
+<span class="nl">SHA256</span><span class="p">:</span><span class="w"> </span><span class="n">trucbidule</span><span class="w"> </span><span class="n">pc</span><span class="nv">@monpc</span><span class="p">.</span><span class="k">local</span><span class="w"></span>
+<span class="n">The</span><span class="w"> </span><span class="k">key</span><span class="err">&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">randomart</span><span class="w"> </span><span class="nc">image</span><span class="w"> </span><span class="k">is</span><span class="err">:</span><span class="w"></span>
+<span class="o">+--[</span><span class="n">ED25519 256</span><span class="o">]</span><span class="err">—</span><span class="o">+</span><span class="w"></span>
+<span class="o">+</span><span class="c1">----[SHA256]-----+</span>
+</code></pre></div>
+
+<h2>On a ces deux clés, il faut désormais transférer la clé publique:</h2>
+<div class="highlight"><pre><span></span><code><span class="n">ssh</span><span class="o">-</span><span class="n">copy</span><span class="o">-</span><span class="n">id</span><span class="w"> </span><span class="o">-</span><span class="n">i</span><span class="w"> </span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_ed25519</span><span class="p">.</span><span class="n">pub</span><span class="w"> </span><span class="k">user</span><span class="nv">@monip</span><span class="w"> </span><span class="o">-</span><span class="n">p</span><span class="w"> </span><span class="mi">6666</span><span class="w"></span>
+
+
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">ssh</span><span class="o">-</span><span class="n">copy</span><span class="o">-</span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="nl">INFO</span><span class="p">:</span><span class="w"> </span><span class="n">Source</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="k">key</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="nl">installed</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;.ssh/id_ed25519.pub&quot;</span><span class="w"></span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">ssh</span><span class="o">-</span><span class="n">copy</span><span class="o">-</span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="nl">INFO</span><span class="p">:</span><span class="w"> </span><span class="n">attempting</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="nf">log</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="k">key</span><span class="p">(</span><span class="n">s</span><span class="p">),</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">filter</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="ow">any</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">already</span><span class="w"> </span><span class="n">installed</span><span class="w"></span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">ssh</span><span class="o">-</span><span class="n">copy</span><span class="o">-</span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="nl">INFO</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">key</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="n">remain</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">prompted</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">install</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">keys</span><span class="w"></span>
+<span class="k">user</span><span class="nv">@monip</span><span class="s1">&#39;s password:</span>
+
+<span class="s1">Number of key(s) added:        1</span>
+
+<span class="s1">Now try logging into the machine, with:   &quot;ssh -p &#39;</span><span class="mi">6666</span><span class="s1">&#39; ‘user@monip&#39;</span><span class="err">&quot;</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">sure</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">key</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="n">you</span><span class="w"> </span><span class="n">wanted</span><span class="w"> </span><span class="n">were</span><span class="w"> </span><span class="n">added</span><span class="p">.</span><span class="w"></span>
+</code></pre></div>
+
+<h2>On peut désormais se connecter avec une passphrase:</h2>
+<div class="highlight"><pre><span></span><code><span class="err">ssh -p &#39;6666&#39; ‘user@monip&#39;</span>
+<span class="err">Enter passphrase for key &#39;/Users/pc/.ssh/id_ed25519&#39;:</span>
+</code></pre></div>
+
+<h2>C'est bon !</h2>
+<div class="highlight"><pre><span></span><code><span class="err">user@servssh:~$</span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>
