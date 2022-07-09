@@ -10,10 +10,14 @@ SITEURL = 'https://maxime.sourdin.ovh'
 SITEURL_LOCAL = 'https://maxime.sourdin.ovh'
 PATH = 'content'
 TIMEZONE = 'Europe/Paris'
+AUTHOR_URL = 'author/{slug}'
+AUTHOR_SAVE_AS = 'author/{slug}'
 DEFAULT_LANG = 'fr'
 DEFAULT_DATE_FORMAT = ('%b %d, %Y')
 CATEGORY_SAVE_AS = '{slug}'
 CATEGORY_URL = '{slug}'
+TAG_URL = 'tag/{slug}'
+TAG_SAVE_AS = 'tag/{slug}'
 FEED_ATOM = 'atom.xml'
 HIDE_AUTHORS = True
 RSS_FEED_SUMMARY_ONLY = True
@@ -53,5 +57,21 @@ LINKS = (
         ('email', 'mailto:maxime at sourdin.ovh'),
         ('gitlab', 'https://gitlab.com/maximesrd'),
         ('feed', 'https://maxime.sourdin.ovh/atom.xml'),
-        ('blog', 'https://maxime.sourdin.ovh/author/maxime-sourdin.html')
+        ('blog', 'https://maxime.sourdin.ovh/author/maxime-sourdin')
         )
+MARKDOWN = {
+    'extension_configs': {
+        'markdown.extensions.extra': {},
+        'markdown.extensions.admonition': {},
+        'markdown.extensions.codehilite': {
+            'css_class': 'highlight'
+        },
+        'markdown.extensions.meta': {},
+        'smarty' : {
+            'smart_angled_quotes' : 'true'
+        },
+        'markdown.extensions.toc': {
+            'permalink': 'true',
+        },
+    }
+}
