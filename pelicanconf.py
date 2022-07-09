@@ -18,14 +18,7 @@ CATEGORY_SAVE_AS = '{slug}'
 CATEGORY_URL = '{slug}'
 TAG_URL = 'tag/{slug}'
 TAG_SAVE_AS = 'tag/{slug}'
-FEED_ATOM = 'atom.xml'
 HIDE_AUTHORS = True
-RSS_FEED_SUMMARY_ONLY = True
-CATEGORY_FEED_ATOM = None
-TRANSLATION_FEED_ATOM = None
-AUTHOR_FEED_ATOM = None
-AUTHOR_FEED_RSS = None
-FEED_DOMAIN = SITEURL
 STATIC_PATHS = ['medias']
 CC_LICENSE = 'CC-BY-SA'
 ARTICLE_SAVE_AS = '{slug}'
@@ -56,7 +49,6 @@ LINKS = (
         ('linkedin', 'https://linkedin.com/in/maxime-sourdin-15b082154'),
         ('email', 'mailto:maxime at sourdin.ovh'),
         ('gitlab', 'https://gitlab.com/maximesrd'),
-        ('feed', 'https://maxime.sourdin.ovh/atom.xml'),
         ('blog', 'https://maxime.sourdin.ovh/author/maxime-sourdin')
         )
 MARKDOWN = {
