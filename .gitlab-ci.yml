@@ -24,7 +24,7 @@ deployblog:
   paths:
    - /builds/$COMPILATIONPATH/output
  script:
-  - aws s3 cp /builds/$COMPILATIONPATH/output/ s3://${BUCKET_NAME}/ --recursive
+  - aws s3 cp --content-type 'text/html' /builds/$COMPILATIONPATH/output/ s3://${BUCKET_NAME}/ --recursive
  environment:
   name: ${CI_COMMIT_REF_SLUG}
   url: https://${BUCKET_NAME}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/
