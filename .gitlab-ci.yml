@@ -10,7 +10,7 @@ generate:
     - /builds/$COMPILATIONPATH/output
  script:
   - cd /builds/$COMPILATIONPATH
-  - make html
+  - pelican content -o output -s pelicanconf.py
 #  - weasyprint output/cv.html output/cv.pdf --base-url https://maxime.sourdin.ovh
  tags:
   - docker
