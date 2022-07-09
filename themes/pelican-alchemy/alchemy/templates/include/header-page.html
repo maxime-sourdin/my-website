@@ -1,0 +1,25 @@
+{%- macro fa(icon) -%}
+{%- set fa_special_icons = {
+  "feed": "fas fa-rss",
+  "rss": "fas fa-rss",
+} -%}
+{%- if icon in fa_special_icons -%}
+{{ fa_special_icons[icon] }}
+{%- elif icon.split()|select("in", ["fab", "fas", "far", "fal", "fad"])|list -%}
+{{ icon }}
+{%- else -%}
+fab fa-{{icon}}
+{%- endif -%}
+{%- endmacro -%}
+<div class="row">
+  {% if SITEIMAGE %}
+    <div class="col-sm-4">
+      <a href="{{ SITEURL }}/">
+        <img class="img-fluid rounded" src={{ url(SITEIMAGE) }} alt="{{ SITENAME }}">
+      </a>
+    </div>
+  {% endif %}
+  <div class="col-sm-{% if SITEIMAGE %}8{% else %}12{% endif %}">
+    <h1 class="title"><a href="{{ SITEURL }}/">{{ SITENAME }}</a></h1>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+{%- macro url(destination) -%}
+{%- if destination|lower|truncate(4, True, '') == 'http' or not destination -%}
+{{ destination }}
+{%- elif destination|first == '/' -%}
+{{ SITEURL + destination }}
+{%- else -%}
+{{ SITEURL + '/' + destination }}
+{%- endif -%}
+{%- endmacro -%}
+<!doctype html>
+<html lang="{{ DEFAULT_LANG }}">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
+  <link rel="canonical" href="{{ SITEURL }}/{{ output_file }}">
+  <link rel="stylesheet" href="{{ url(BOOTSTRAP_CSS or '/theme/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url(FONTAWESOME_CSS or '/theme/css/fontawesome.min.css') }}">
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/css/pygments/{{ PYGMENTS_STYLE|default('default') }}.min.css">
+  <link rel="stylesheet" href="{{ SITEURL }}/theme/css/theme.css">
+  {% for stylesheet in THEME_CSS_OVERRIDES or () %}
+  <link rel="stylesheet" href="{{ url(stylesheet) }}">
+  {% endfor %}
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      {% include 'include/header-page.html' %}
+    </div>
+  </header>
+  <div class="main">
+    <div class="container">
+      <h1>{% block page_header %}{% endblock %}</h1>
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>
