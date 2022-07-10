@@ -1,23 +1,24 @@
 stages:
-- generate
-- deploy
+- html
+- deployhtml
+- pdf
+- deploypdf
 
 generate:
  image: $PELICANIMAGE
- stage: generate
+ stage: html
  artifacts:
   paths:
     - /builds/$COMPILATIONPATH/output
  script:
   - cd /builds/$COMPILATIONPATH
   - pelican content -o output -s pelicanconf.py
-  - weasyprint output/cv output/cv.pdf --base-url https://maxime.sourdin.ovh
  tags:
   - docker
 
 deployblog:
  image: $AWSCLIIMAGE
- stage: deploy
+ stage: deployhtml
  artifacts:
   when: always
   expire_in: 20 minutes
@@ -31,3 +32,34 @@ deployblog:
  tags:
   - docker
  allow_failure: true
+
+pdfgen:
+ image: $PDFGENIMAGE
+ stage: pdf
+ script:
+    - /usr/local/bin/entrypoint --url https://maxime.sourdin.ovh --pdf /builds/$COMPILATIONPATH/output/cv.pdf --scale 0.7 && exit 0
+ artifacts:
+  when: always
+  expire_in: 20 minutes
+  paths:
+   - /builds/$COMPILATIONPATH/output
+ tags:
+  - docker
+ allow_failure: true
+
+pdfs3:
+ image: $AWSCLIIMAGE
+ stage: deploypdf
+ tags:
+  - docker
+ allow_failure: true
+ artifacts:
+  when: always
+  expire_in: 20 minutes
+  paths:
+   - /builds/$COMPILATIONPATH/output
+ script:
+  - aws s3 cp /builds/$COMPILATIONPATH/output/cv.pdf s3://${BUCKET_NAME}/
+ environment:
+  name: ${CI_COMMIT_REF_SLUG}
+  url: https://${BUCKET_NAME}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/
