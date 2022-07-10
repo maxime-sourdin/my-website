@@ -13,7 +13,7 @@ generate:
  script:
   - cd /builds/$COMPILATIONPATH
   - pelican content -o output -s pelicanconf.py
-  - python3 generate.py
+  - python3 generatepdf.py
  tags:
   - docker
 
