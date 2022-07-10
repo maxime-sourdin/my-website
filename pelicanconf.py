@@ -46,6 +46,7 @@ SITEMAP = {
 }
 LINKS = (
         ('CV', 'https://maxime.sourdin.ovh/cv'),
+        ('CV (PDF)', 'https://maxime.sourdin.ovh/cv.pdf'),
         ('linkedin', 'https://linkedin.com/in/maxime-sourdin-15b082154'),
         ('email', 'mailto:maxime at sourdin.ovh'),
         ('gitlab', 'https://gitlab.com/maximesrd'),
@@ -61,9 +62,6 @@ MARKDOWN = {
         'markdown.extensions.meta': {},
         'smarty' : {
             'smart_angled_quotes' : 'true'
-        },
-        'markdown.extensions.toc': {
-            'permalink': 'true',
-        },
+        }
     }
 }

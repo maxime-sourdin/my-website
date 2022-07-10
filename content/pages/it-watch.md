@@ -1,5 +1,4 @@
 Title: "IT Watch"
-Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Status: hidden
 

@@ -1,12 +1,14 @@
-Title: "cv"
-Date: 2019:21:10 18:00
+Title: Maxime SOURDIN
+save_as: cv
 Authors: Maxime SOURDIN
+
 # About
 - **22 years**
 - **Tech Lead Junior at Orange Business Services**
 - Linkedin: **[linkedin.com/in/maxime-sourdin-15b082154](https://linkedin.com/in/maxime-sourdin-15b082154)**
 - Mail: **[maxime@sourdin.ovh](mailto:maxime@sourdin.ovh)**
 - Languages: **English (TOEIC: 620)**, **French (Native language)**
+
 
 # Skills
 ### *Orchestration and automation*
@@ -52,6 +54,7 @@ Authors: Maxime SOURDIN
 - **VPN configuration**: OpenVPN, Wireguard, Tinc
 - **DNS server configuration**: Unbound, NSD, dnsmasq
 
+
 # Experience
 
 ### <span>Permanent contract: Tech Lead Junior</span>
@@ -92,6 +95,7 @@ Lycée de la Salle, Rennes, <span>**05/2018 - 06/2018**</span>
 - System image creation (FOG)
 - Supervision (Zabbix)
 - Update management (WSUS)
+
 
 # Education
 
