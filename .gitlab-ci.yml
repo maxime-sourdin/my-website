@@ -1,15 +1,12 @@
 stages:
-- html
-- deployhtml
-- pdf
-- deploypdf
+- deploy
 
-generate:
+pages:
  image: $PELICANIMAGE
- stage: html
+ stage: deploy
  artifacts:
   paths:
-    - /builds/$COMPILATIONPATH/public
+    - public/
  script:
   - cd /builds/$COMPILATIONPATH
   - /home/python/.local/bin/pelican content -o public -s pelicanconf.py
