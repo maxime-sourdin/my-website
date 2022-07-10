@@ -9,27 +9,10 @@ generate:
  stage: html
  artifacts:
   paths:
-    - /builds/$COMPILATIONPATH/output
+    - /builds/$COMPILATIONPATH/public
  script:
   - cd /builds/$COMPILATIONPATH
-  - /home/python/.local/bin/pelican content -o output -s pelicanconf.py
+  - /home/python/.local/bin/pelican content -o public -s pelicanconf.py
 #  - python3 generatepdf.py
  tags:
   - docker
-
-deployblog:
- image: $AWSCLIIMAGE
- stage: deployhtml
- artifacts:
-  when: always
-  expire_in: 20 minutes
-  paths:
-   - /builds/$COMPILATIONPATH/output
- script:
-  - aws s3 cp /builds/$COMPILATIONPATH/output/ s3://${BUCKET_NAME}/ --recursive
- environment:
-  name: ${CI_COMMIT_REF_SLUG}
-  url: https://${BUCKET_NAME}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/
- tags:
-  - docker
- allow_failure: true
