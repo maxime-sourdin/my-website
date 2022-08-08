@@ -1,5 +1,6 @@
 Title: Maxime SOURDIN
 Authors: Maxime SOURDIN
+save_as: cv.html
 
 # About
 - **22 years**
