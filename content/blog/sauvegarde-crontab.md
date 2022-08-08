@@ -3,7 +3,7 @@ Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Sauvegarde
 Tags: OpenMediaVault
-Summary: Automatisation d'une sauvegarde sous OpenMediaVault
+Summary: Automatisation d'une sauvegarde
 
 Edition de la crontab:
 
