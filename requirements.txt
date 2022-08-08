@@ -1,0 +1,18 @@
+--extra-index-url https://alpine-wheels.github.io/index
+
+blinker
+colorama
+commonmark
+docutils
+feedgenerator
+jinja2
+markdown
+markupsafe
+pelican[markdown]
+pygments
+python-dateutil
+pytz
+rich
+six
+unidecode
+pelican-sitemap
