@@ -1,5 +1,5 @@
 Title: Maxime SOURDIN
-save_as: cv
+save_as: cv.html
 Authors: Maxime SOURDIN
 
 # About
