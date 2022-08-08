@@ -103,7 +103,7 @@ Vous pouvez cloner mon repository et ajuster certaines valeurs:
  
  Il s'agit surtout du fichier Dockerfile à modifier:
 
-	FROM alpine:latest
+	FROM alpine:3
 	RUN apk update \
 	   && apk add --no-cache \
 	     chromium \

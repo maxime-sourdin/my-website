@@ -2,7 +2,7 @@ Title: Sauvegarde avec tar et la crontab
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Sauvegarde
-Tags: OpenMediaVault
+Tags: shell
 Summary: Automatisation d'une sauvegarde
 
 Edition de la crontab:

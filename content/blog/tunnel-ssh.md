@@ -2,6 +2,7 @@ Title: Mettre en place un tunnel SSH permanent
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Bidouille
+Summary: Faire le lien entre deux machines
 Tags: SSH
 
 # Fichiers de configuration
