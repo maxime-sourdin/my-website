@@ -49,7 +49,7 @@ LINKS = (
         ('CV (PDF)', 'https://maxime.sourdin.ovh/cv.pdf'),
         ('linkedin', 'https://linkedin.com/in/maxime-sourdin-15b082154'),
         ('email', 'mailto:maxime at sourdin.ovh'),
-        ('gitlab', 'https://gitlab.com/maximesrd'),
+        ('github', 'https://github.com/maxime-sourdin'),
         ('blog', 'https://maxime.sourdin.ovh/author/maxime-sourdin')
         )
 MARKDOWN = {

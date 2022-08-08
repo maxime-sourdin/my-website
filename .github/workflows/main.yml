@@ -1,8 +1,8 @@
-name: Build
+name: Build blog
 
 on:
   push:
-    branches: [ pelican ]
+    branches: [ main ]
 
 jobs:
   build:
