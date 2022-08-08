@@ -16,3 +16,4 @@ rich
 six
 unidecode
 pelican-sitemap
+ghp-import
