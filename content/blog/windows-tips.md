@@ -3,7 +3,7 @@ Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Windows
 Tags: Tweaks
-Summary: Alimentation/Domaine/Nettoyage de Windows
+Summary: Setting Power/Domain/Cleaning on Windows
 
 ## Setting power mode
 
