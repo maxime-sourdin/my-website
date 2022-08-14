@@ -1,11 +1,11 @@
-Title: Optimisation de Windows 10
+Title: Quelques tweaks Windows
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
-Category: OS
-Tags: Windows
-Summary: Quelques commandes utiles pour gérer et nettoyer Windows
+Category: Windows
+Tags: Tweaks
+Summary: Alimentation/Domaine/Nettoyage de Windows
 
-## Gestion de l'alimentation
+## Setting power mode
 
  Ultimate Performance:
 
@@ -23,14 +23,14 @@ Power saver:
 
     powercfg -duplicatescheme a1841308-3541-4fab-bc81-f71556f20b4a
 
-## Domaine Windows
+## Joining domain
 
     @echo off
-    NETDOM JOIN %computername% /domain:DOMAINE /userD:USER /passwordD:MOTDEPASSE
+    NETDOM JOIN %computername% /domain:SIO.LOCAL /userD:sourdin.m /passwordD:xacten
     del domaine.bat
     shutdown -r -f -t 0
 
-## Clean
+## Cleaning Windows
 
     @rem *** Disable Some Service ***
     sc stop DiagTrack

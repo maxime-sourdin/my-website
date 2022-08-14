@@ -1,9 +1,9 @@
-Title: Configuration réseau de relai wifi sur OpenWRT
+Title: Network configuration on OpenWRT (wifi relay)
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
-Category: Réseau
+Category: Network
 Tags: Openwrt
-Summary: Relai Wifi
+Summary: Wifi relay
 
 # /etc/config/wireless
 

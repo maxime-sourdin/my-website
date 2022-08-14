@@ -1,49 +1,48 @@
 Title: Hackintosh Vostro 7590
 Date: 2019:21:10 18:00
-Authors: Maxime SOURDIN
+Author: Maxime SOURDIN
 Category: Mac
 Tags: Hackintosh
-Summary: Utilisation d'un Vostro 7590 comme Hackintosh
+Summary: Using a Vostro 7590 as Hackintosh
 
-Retour sur l’utilisation de MacOS sur un Dell Vostro/Inspiron 7590 (hackintosh)
+Feedback on using MacOS on a Dell Vostro/Inspiron 7590 (hackintosh)
 
-Ce qui fonctionne:
+What works:
 
-- HDMI
-- Camera
-- USB
-- Usb Type C /Thunderbolt3
-- Bluetooth
-- Veille
+-HDMI
+-Camera
+-USB
+- USB Type-C / Thunderbolt3
+-Bluetooth
+- Standby
 - Airplay (!!)
 
-Ce qui ne fonctionne pas:
+What doesn't work:
 
-- Wifi
+- Wireless
 - Microphone
-- Lecteur de carte SD
-- la GTX 1050 3Go
+- SD card reader
+- the GTX 1050 3GB
 
-La clé bootable a été crée avec ce <a href="https://dortania.github.io/OpenCore-Desktop-Guide/installer-guide/winblows-install.html">guide </a>.
+The bootable key was created with this <a href="https://dortania.github.io/OpenCore-Desktop-Guide/installer-guide/winblows-install.html">guide</a>.
 
-Dés que la clé bootable est crée, il faut accéder à la partition EFI, qui s’appelle BOOT, aller dans le dossier EFI. Il faut télécharger cette <a href="https://github.com/Pinming/Dell-Inspiron-7590-Hackintosh-Opencore/archive/master.zip">archive </a> et la décompresser dans le dossier OC, en écrasant les fichiers existants.
+As soon as the bootable key is created, you must access the EFI partition, which is called BOOT, go to the EFI folder. You have to download this <a href="https://github.com/Pinming/Dell-Inspiron-7590-Hackintosh-Opencore/archive/master.zip">archive </a> and unzip it in the OC folder, overwriting existing files.
 
-Après, il faut redémarrer sur la clé, et c’est le mode de récupération de Catalina qui s’affichera. Il est nécessaire d’allouer un disque entier pour Catalina. Si vous avez une connexion ADSL, l’étape suivante sera assez longue, car l’installateur télécharge ce qu’il faut pour Catalina.
+Afterwards, you have to restart on the key, and it is the Catalina recovery mode that will be displayed. It is necessary to allocate an entire disk for Catalina. If you have an ADSL connection, the next step will be quite long, because the installer downloads what is needed for Catalina.
 
-Enfin, à la fin de l’installation, et au redémarrage, il faut choisir de booter sur le disque. La partition EFI du disque doit être montée.
+Finally, at the end of the installation, and at the restart, you must choose to boot from the disk. The disk's EFI partition must be mounted.
 
-	sudo mkdir /Volumes/efi
-	sudo mount -t msdos /dev/disk0s1 /Volumes/efi
+sudo mkdir /Volumes/efi
+sudo mount -t msdos /dev/disk0s1 /Volumes/efi
 
-Après, il est possible d' y copier le contenu de la partition EFI de la clé USB, avec le Finder.
+Afterwards, it is possible to copy the contents of the EFI partition of the USB key there, with the Finder.
 
-Pour le Wifi, ça avance, grâce à deux projets:
+For Wifi, things are progressing, thanks to two projects:
 
-- <a href="https://github.com/zxystd/itlwm"> itwlm </a>
+- <a href="https://github.com/zxystd/itlwm">itwlm</a>
 
-- <a href="https://github.com/AppleIntelWifi/adapter">AppleIntelWifi </a>
+- <a href="https://github.com/AppleIntelWifi/adapter">AppleIntelWifi</a>
 
-Niveau <a href="https://browser.geekbench.com/v5/cpu/1919290" >benchmarks </a>, c’est pas mal, ça s’approche d’un MacBookPro 16P de 2019, avec le même processeur, vendue 2700 euros (mais pas limité par le GPU intégré et qui n’a pas les dysfonctionnements du hackintosh évidemment).
+Level <a href="https://browser.geekbench.com/v5/cpu/1919290" >benchmarks </a>, it's not bad, it's approaching a MacBookPro 16P from 2019, with the same processor, sold for 2700 euros (but not limited by the integrated GPU and which obviously does not have the hackintosh malfunctions).
 
-Au niveau stabilité, j'ai eu quelques petits problèmes, mais ça semble inhérent à Catalina. Le boot, quant à lui est plus rapide que sur un vrai Mac, et la ventilation est mieux géré.
-
+At the stability level, I had some small problems, but it seems inherent to Catalina. The boot, meanwhile, is faster than on a real Mac, and the ventilation is better managed.

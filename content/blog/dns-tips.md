@@ -1,16 +1,68 @@
-Title: Configurer un relai DNS vers un serveur DNS over HTTPS
-Date: 2019:21:10 18:00
-Authors: Maxime SOURDIN
-Category: DNS
-Tags: dnscrypt-proxy
-Summary: Fichier de configuration simple
+Title: Some DNS Tips
+Date : 2019:21:10 18:00
+Authors : Maxime SOURDIN
+Category : Network
+Tags : DNS
+Summary : Simple configuration of unbound and dnscrypt-proxy
 
-# Générer le DNS STAMP
+# Unbound 
 
-- [Utilisez ce site pour générer le DNS STAMP de votre serveur DNS over HTTPS](https://dnscrypt.info/stamps/)
-- Notez cette valeur, elle serait à inclure à la fin du fichier de configuration
+## Edit /etc/unbound/unbound.conf
 
-# Fichier de configuration à remplir
+    server :
+        verbosity : 3
+        interface : 192.168.1.2
+        interface : ::1
+        do-ip6 : yes
+        do-ip4: yes
+        do-udp: yes
+        do-tcp: yes
+
+    access control: 192.168.1.0/24 allowed
+    access control: ::0/0 allowed
+    access control: 127.0.0.0/8 allowed
+    access control : ::1 allowed
+
+    hide-identity: yes
+    harden-algo-downgrade : no
+    harden-glue : yes
+    hide-version : yes
+    harden-below-nxdomain : yes
+    auto-trust-anchor-file : "/var/lib/unbound/root.key
+    root-hints: "/var/lib/unbound/root.hints
+    module-config : "validation iterator".
+
+    prefetch: yes
+    prefetch-key: yes
+    qname-minimization: yes
+    harden-dnssec-stripped: yes
+    use-caps-for-id : yes
+    cache-min-ttl: 3600
+    cache-max-ttl : 86400
+    prefetch: yes
+    num-threads : 6
+    msg-cache-slabs: 16
+    rrset-cache-slabs: 16
+    buffers for infra caches: 16
+    buffers for key cache: 16
+    rrset cache size: 256m
+    msg cache size: 128m
+    so-rcvbuf: 1m
+    unwanted-reply-threshold: 10000
+    do-not-query-localhost: yes
+    val-clean-additional: yes
+    use-syslog : yes
+    logfile : /var/log/unbound.log
+
+## dnscrypt-proxy
+
+### Generate DNS STAMP
+
+- Use this site to generate the DNS STAMP of your DNS server over HTTPS](https://dnscrypt.info/stamps/)
+- Note this value, it should be included at the end of the configuration file
+
+### Edit /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+
         ##############################################
         #                                            #
         #        dnscrypt-proxy configuration        #
