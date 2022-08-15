@@ -5,7 +5,6 @@ Authors: Maxime SOURDIN
 Category: Automation
 Tags: Terraform
 Summary: Save some time without using IHM
-save_as: managing-ovh-dns-records-with-terraform-with-state-storage-on-a-s3-bucket.html
 
 # Prerequisites
 

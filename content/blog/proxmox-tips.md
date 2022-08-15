@@ -4,7 +4,6 @@ Authors: Maxime SOURDIN
 Category: Hypervisor
 Tags: Tips
 Summary: Some commands for pct/qm/vzdump
-save_as: proxmox-tips.html
 
 __Stop backup:__
 

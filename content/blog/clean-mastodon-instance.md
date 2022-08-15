@@ -4,7 +4,6 @@ Authors: Maxime SOURDIN
 Category: Self-hosting
 Tags: Mastodon
 Summary: Save some space on your instance
-save_as: mastodon-clean.html
 
 # Cleaning the cache
 

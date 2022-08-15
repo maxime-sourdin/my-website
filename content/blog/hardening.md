@@ -4,7 +4,6 @@ Author: Maxime SOURDIN
 Category: Hardening
 Summary: A few commands to strengthen your server
 Tags: Tips
-save_as: hardening.html
 
 ## Important Packages
 

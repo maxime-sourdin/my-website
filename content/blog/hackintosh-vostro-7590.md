@@ -4,9 +4,8 @@ Author: Maxime SOURDIN
 Category: Mac
 Tags: Hackintosh
 Summary: A feedback on using MacOS on a Dell Vostro/Inspiron 7590
-save_as: dell-vostro-7590-hackintosh.html
 
-What works:
+# What works:
 
 - HDMI
 - Camera
@@ -16,12 +15,14 @@ What works:
 - Standby
 - Airplay (!!)
 
-What doesn't work:
+# What doesn't work:
 
 - Wireless
 - Microphone
 - SD card reader
 - the GTX 1050 3GB
+
+# Procedure
 
 The bootable key was created with this <a href="https://dortania.github.io/OpenCore-Desktop-Guide/installer-guide/winblows-install.html">guide</a>.
 

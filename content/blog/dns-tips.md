@@ -4,7 +4,6 @@ Authors: Maxime SOURDIN
 Category: Network
 Tags: Tips
 Summary: Simple configuration of unbound and dnscrypt-proxy
-save_as: dns-tips.html
 
 # Unbound
 

@@ -4,7 +4,6 @@ Author: Maxime SOURDIN
 Category: Logs
 Tags: HaProxy
 Summary: Grok pattern for HaProxy and Syslog
-save_as: grok-patterns.html
 
 ## Grok pattern haproxy
 

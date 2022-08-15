@@ -4,7 +4,6 @@ Authors: Maxime SOURDIN
 Category: Hardening
 Tags: Encryption
 Summary: Simply encrypt your disk
-save_as: disk-encryption.html
 
 # Encrypt a disk
 

@@ -4,7 +4,6 @@ Authors: Maxime SOURDIN
 Category: OVH
 Tags: Tips
 Summary: Some tips on OVH
-save_as: ovh-tips.html
 
 # Boot rescue mode
 
