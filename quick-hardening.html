@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Quick Hardening | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/quick-hardening.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Categories Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/hardening.atom.xml">  
+  <meta name="description" content="A few commands to strengthen your server">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv.pdf" target="_blank">CV (PDF)</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://github.com/maxime-sourdin" target="_blank">github</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Quick Hardening
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-08-15T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Aug 15, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/hardening">Hardening</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/tips">#Tips</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h2>Important Packages</h2>
+<div class="highlight"><pre><span></span><code>sudo apt install -y apt-listbugs apt-listchanges needrestart debsecan debsums libpam-tmpdir chkrootkit
+</code></pre></div>
+
+<h2>CronAPT</h2>
+<div class="highlight"><pre><span></span><code><span class="n">APTCOMMAND</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">apt</span><span class="o">-</span><span class="k">get</span><span class="w"></span>
+<span class="n">OPTIONS</span><span class="o">=</span><span class="ss">&quot;-o quiet=1 -o Dir::Etc::SourceList=/etc/apt/security.sources.list&quot;</span><span class="w"></span>
+<span class="n">MAILTO</span><span class="o">=</span><span class="ss">&quot;mail@mail.com&quot;</span><span class="w"></span>
+<span class="n">LINK</span><span class="o">=</span><span class="ss">&quot;always&quot;</span><span class="w"></span>
+</code></pre></div>
+
+<h2>Passwords</h2>
+<div class="highlight"><pre><span></span><code>apt-get install libpam-cracklib
+</code></pre></div>
+
+<p>sudo nano /etc/pam.d/common-password</p>
+<div class="highlight"><pre><span></span><code># <span class="nv">here</span> <span class="nv">are</span> <span class="nv">the</span> <span class="nv">per</span><span class="o">-</span><span class="nv">package</span> <span class="nv">modules</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Primary</span><span class="s2">&quot;</span> <span class="nv">block</span><span class="ss">)</span>
+<span class="nv">password</span> <span class="nv">requirement</span> <span class="nv">pam_cracklib</span>.<span class="nv">so</span> <span class="nv">retry</span><span class="o">=</span><span class="mi">1</span> <span class="nv">minlen</span><span class="o">=</span><span class="mi">32</span> <span class="nv">difok</span><span class="o">=</span><span class="mi">5</span>
+<span class="nv">password</span> [<span class="nv">success</span><span class="o">=</span><span class="mi">1</span> <span class="nv">default</span><span class="o">=</span><span class="nv">ignore</span>] <span class="nv">pam_unix</span>.<span class="nv">so</span> <span class="nv">obscure</span> <span class="nv">use_authtok</span> <span class="nv">try_first_pass</span> <span class="nv">sha512</span>
+# <span class="nv">here</span><span class="s1">&#39;</span><span class="s">s the fallback if no module succeeds</span>
+<span class="nv">password</span> <span class="nv">requirement</span>
+              <span class="nv">pam_deny</span>.<span class="nv">so</span>
+# <span class="nv">prime</span> <span class="nv">the</span> <span class="nv">stack</span> <span class="nv">with</span> <span class="nv">a</span> <span class="nv">positive</span> <span class="k">return</span> <span class="nv">value</span> <span class="k">if</span> <span class="nv">there</span> <span class="nv">isn</span><span class="s1">&#39;</span><span class="s">t one already;</span>
+# <span class="nv">this</span> <span class="nv">avoids</span> <span class="nv">us</span> <span class="nv">returning</span> <span class="nv">an</span> <span class="nv">error</span> <span class="nv">just</span> <span class="nv">because</span> <span class="nv">nothing</span> <span class="nv">sets</span> <span class="nv">a</span> <span class="nv">success</span> <span class="nv">code</span>
+# <span class="nv">since</span> <span class="nv">the</span> <span class="nv">modules</span> <span class="nv">above</span> <span class="nv">will</span> <span class="nv">each</span> <span class="nv">just</span> <span class="nv">jump</span> <span class="nv">around</span>
+<span class="nv">password</span> <span class="nv">required</span> <span class="nv">pam_permit</span>.<span class="nv">so</span>
+# <span class="nv">and</span> <span class="nv">here</span> <span class="nv">are</span> <span class="nv">more</span> <span class="nv">per</span><span class="o">-</span><span class="nv">package</span> <span class="nv">modules</span> <span class="ss">(</span><span class="nv">the</span> <span class="s2">&quot;</span><span class="s">Additional</span><span class="s2">&quot;</span> <span class="nv">block</span><span class="ss">)</span>
+<span class="nv">password</span> <span class="nv">optional</span> <span class="nv">pam_gnome_keyring</span>.<span class="nv">so</span>
+# <span class="k">end</span> <span class="nv">of</span> <span class="nv">pam</span><span class="o">-</span><span class="nv">auth</span><span class="o">-</span><span class="nv">update</span> <span class="nv">config</span>
+</code></pre></div>
+
+<h2>Nmap</h2>
+<div class="highlight"><pre><span></span><code><span class="nt">for</span><span class="w"> </span><span class="nt">i</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="p">{</span><span class="err">1..254</span><span class="p">}</span><span class="o">;</span><span class="w"> </span><span class="nt">do</span><span class="w"> </span><span class="nt">nmap</span><span class="w"> </span><span class="nt">-sp</span><span class="w"> </span><span class="nt">--max-retries</span><span class="o">=</span><span class="nt">1</span><span class="w"> </span><span class="nt">--host-timeout</span><span class="o">=</span><span class="nt">1500ms</span><span class="w"> </span><span class="nt">192</span><span class="p">.</span><span class="nc">168</span><span class="o">.</span><span class="p">.</span><span class="nc">1-254</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nt">grep</span><span class="w"> </span><span class="nt">-Ev</span><span class="w"> </span><span class="s2">&quot;Starting Nmap 7.70|Nmap done: 254 IP addresses&quot;</span><span class="o">;</span><span class="w"> </span><span class="nt">done</span><span class="w"></span>
+</code></pre></div>
+
+<h2>Nginx</h2>
+<h3>Rickroll bots</h3>
+<h4>Edit /etc/nginx/snippets/rickroll.conf</h4>
+<div class="highlight"><pre><span></span><code><span class="nt">error_page</span><span class="w"> </span><span class="nt">404</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+<span class="nt">error_page</span><span class="w"> </span><span class="nt">500</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+<span class="nt">error_page</span><span class="w"> </span><span class="nt">501</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+<span class="nt">error_page</span><span class="w"> </span><span class="nt">502</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+<span class="nt">error_page</span><span class="w"> </span><span class="nt">503</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+<span class="nt">error_page</span><span class="w"> </span><span class="nt">504</span><span class="w"> </span><span class="o">=</span><span class="nt">301</span><span class="w"> </span><span class="nt">https</span><span class="o">://</span><span class="nt">youtu</span><span class="p">.</span><span class="nc">be</span><span class="o">/</span><span class="nt">dQw4w9WgXcQ</span><span class="o">?</span><span class="nt">t</span><span class="o">=</span><span class="nt">44</span><span class="o">;</span><span class="w"></span>
+</code></pre></div>
+
+<h4>Edit /etc/nginx/snippets/monsite.conf</h4>
+<div class="highlight"><pre><span></span><code><span class="k">include</span> ..<span class="o">/</span><span class="nv">snippets</span><span class="o">/</span><span class="nv">rickroll</span>.<span class="nv">conf</span><span class="c1">;</span>
+</code></pre></div>
+
+<h4>Restart Nginx</h4>
+<div class="highlight"><pre><span></span><code>sudo systemctl restart nginx
+</code></pre></div>
+
+<h2>Fail2ban</h2>
+<h3>Jails</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[nginx-conn-limit]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-conn-limit</span><span class="w"></span>
+<span class="na">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">iptables-multiport[name=ConnLimit, port=&quot;http,https&quot;,</span><span class="w"></span>
+<span class="na">protocol</span><span class="o">=</span><span class="s">tcp]</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*error.log</span><span class="w"></span>
+<span class="na">findtime</span><span class="o">=</span><span class="s">300 &lt;br&gt;</span><span class="w"></span>
+<span class="na">bantime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7200</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span><span class="w"></span>
+
+<span class="k">[nginx-notilde]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-notilde</span><span class="w"></span>
+<span class="na">action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">iptables-multiport[name=ConnLimit, port=&quot;http,https&quot;,</span><span class="w"></span>
+<span class="na">protocol</span><span class="o">=</span><span class="s">tcp]</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*error.log</span><span class="w"></span>
+<span class="na">findtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span><span class="w"></span>
+<span class="na">bantime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">7200</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span><span class="w"></span>
+
+<span class="k">[back-http]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">dos-http</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span><span class="w"></span>
+<span class="na">findtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span><span class="w"></span>
+
+<span class="k">[nginx-nohome]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-nohome</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"></span>
+
+<span class="k">[nginx-noproxy]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-noproxy</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">25</span><span class="w"></span>
+
+<span class="k">[nginx-noscript]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-noscript</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6</span><span class="w"></span>
+
+<span class="k">[nginx-badbots]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-badbots</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"></span>
+
+<span class="k">[nginx-botsearch]</span><span class="w"></span>
+<span class="na">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w"></span>
+<span class="na">port</span><span class="o">=</span><span class="s">http,https</span><span class="w"></span>
+<span class="na">filter</span><span class="o">=</span><span class="s">nginx-botsearch</span><span class="w"></span>
+<span class="na">logpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/log/nginx/*access.log</span><span class="w"></span>
+<span class="na">maxretry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"></span>
+</code></pre></div>
+
+<h3>Filters</h3>
+<p>For example, in /etc/fail2ban/filter.d/nginx-nohome.conf</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Definition]</span><span class="w"></span>
+<span class="na">failregex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">^&lt;HOST&gt; -.*GET .*/~.*</span><span class="w"></span>
+<span class="na">ignoreregex</span><span class="o">=</span><span class="w"></span>
+</code></pre></div>
+
+<p>Or in /etc/fail2ban/filter.d/nginx-noproxy.conf</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Definition]</span><span class="w"></span>
+<span class="na">failregex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">^&lt;HOST&gt; -.*GET http.*</span><span class="w"></span>
+<span class="na">ignoreregex</span><span class="o">=</span><span class="w"></span>
+</code></pre></div>
+
+<p>In /etc/fail2ban/filter.d/nginx-noscript.conf</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Definition]</span><span class="w"></span>
+<span class="na">failregex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">^&lt;HOST&gt;-.*GET.*(\.php|\.asp|\.exe|\.pl|\.cgi|\.scgi)</span><span class="w"></span>
+<span class="na">ignoreregex</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+</code></pre></div>
+
+<p>In /etc/fail2ban/filter.d/nginx-notilde.conf</p>
+<div class="highlight"><pre><span></span><code><span class="k">[Definition]</span><span class="w"></span>
+<span class="w">    </span><span class="na">failregex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">^ \[error\] \d+#\d+: \*\d+ .* client: &lt;HOST&gt;, server:\S+, request: &quot;GET /.*~ HTTP</span><span class="w"></span>
+<span class="w">    </span><span class="na">ignoreregex</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+</code></pre></div>
+
+<h2>IPTABLES</h2>
+<div class="highlight"><pre><span></span><code>sudo iptables -P INPUT DROP # block input
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 22 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 8118 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 443 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 139 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 631 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 53 -j ACCEPT
+sudo iptables -A INPUT -p udp -i enp0s7 --dport 53 -j ACCEPT
+sudo iptables -A INPUT -p udp -i enp0s7 --dport 1194 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 2377 -j ACCEPT
+sudo iptables -A INPUT -p tcp -i enp0s7 --dport 7946 -j ACCEPT
+sudo iptables -A INPUT -p udp -i enp0s7 --dport 4789 -j ACCEPT
+</code></pre></div>
+
+<h2>Anti-virus :</h2>
+<p>Install clamav, update its database, and run a scan every night on the space to be protected, then generate a report:</p>
+<div class="highlight"><pre><span></span><code>sudo fresh clam
+sudo crontab -e :
+
+# m h dom my dow command
+39 0 * * * clamscan -r /storage | grep FOUND &gt;&gt;
+/home/user/reports/report.txt
+</code></pre></div>
+
+<h2>Sysctl</h2>
+<div class="highlight"><pre><span></span><code>net.ipv6.conf.default.accept_redirects=0
+net.ipv6.conf.all.accept_redirects=0
+net.ipv4.conf.default.log_martians=1
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.all.rp_filter=1
+net.ipv4.conf.all.log_martians=1
+net.ipv4.conf.all.forwarding=0
+kernel.sysrq = 0
+kernel.kptr_restrict = 2
+kernel.dmesg_restrict = 1
+fs.suid_dumpable = 0
+kernel.core_uses_pid = 1
+net.ipv4.conf.all.accept_redirects=0
+</code></pre></div>
+
+<h2>Port Scan</h2>
+<div class="highlight"><pre><span></span><code> nc -vnz -w 1 172.16.28.21 1-65535
+</code></pre></div>
+
+<h2>chkrootkit</h2>
+<div class="highlight"><pre><span></span><code><span class="mf">0</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="nb">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">chkrootkit</span><span class="w"> </span><span class="mf">2</span><span class="o">&gt;</span><span class="err">&amp;</span><span class="mf">1</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="n">mail</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="s">&quot;chkrootkit Reports of My Server&quot;</span><span class="w"> </span><span class="n">mail</span><span class="err">@</span><span class="n">mail</span><span class="mf">.</span><span class="n">com</span><span class="w"></span>
+</code></pre></div>
+
+<h2>SSH</h2>
+<h3>Server</h3>
+<h4>/etc/ssh/sshd_config</h4>
+<div class="highlight"><pre><span></span><code><span class="n">Port</span><span class="w"> </span><span class="mi">2417</span><span class="w"></span>
+<span class="n">Listening</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="w"></span>
+<span class="k">Host</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="ss">&quot;/etc/ssh/ssh_host_ed25519_key&quot;</span><span class="p">.</span><span class="w"></span>
+<span class="n">KexAlgorithms</span><span class="w"> </span><span class="n">curve25519</span><span class="o">-</span><span class="n">sha256</span><span class="nv">@libssh</span><span class="p">.</span><span class="n">org</span><span class="p">,</span><span class="n">diffie</span><span class="o">-</span><span class="n">hellman</span><span class="o">-</span><span class="k">group</span><span class="o">-</span><span class="n">exchange</span><span class="o">-</span><span class="n">sha256</span><span class="w"></span>
+<span class="n">Ciphers</span><span class="w"> </span><span class="n">aes256</span><span class="o">-</span><span class="n">gcm</span><span class="nv">@openssh</span><span class="p">.</span><span class="n">com</span><span class="p">,</span><span class="n">aes128</span><span class="o">-</span><span class="n">gcm</span><span class="nv">@openssh</span><span class="p">.</span><span class="n">com</span><span class="p">,</span><span class="n">aes256</span><span class="o">-</span><span class="n">ctr</span><span class="p">,</span><span class="n">aes192</span><span class="o">-</span><span class="n">ctr</span><span class="p">,</span><span class="n">aes128</span><span class="o">-</span><span class="n">ctr</span><span class="w"></span>
+<span class="n">Macs</span><span class="w"> </span><span class="n">hmac</span><span class="o">-</span><span class="n">sha2</span><span class="o">-</span><span class="mi">256</span><span class="o">-</span><span class="n">etm</span><span class="nv">@openssh</span><span class="p">.</span><span class="n">com</span><span class="p">,</span><span class="n">hmac</span><span class="o">-</span><span class="n">sha2</span><span class="o">-</span><span class="mi">512</span><span class="o">-</span><span class="n">etm</span><span class="nv">@openssh</span><span class="p">.</span><span class="n">com</span><span class="p">,</span><span class="n">umac</span><span class="o">-</span><span class="mi">128</span><span class="o">-</span><span class="n">etm</span><span class="nv">@openssh</span><span class="p">.</span><span class="n">com</span><span class="w"></span>
+<span class="n">VERBOSE</span><span class="w"> </span><span class="nf">log</span><span class="w"> </span><span class="k">level</span><span class="w"></span>
+<span class="n">Authentication</span><span class="w"> </span><span class="n">methods</span><span class="w"> </span><span class="n">Publickey</span><span class="w"></span>
+<span class="n">LoginGraceTime</span><span class="w"> </span><span class="mi">5</span><span class="n">m</span><span class="w"></span>
+<span class="n">PermitRootLogin</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">MaxAuthTries</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="n">MaxSessions</span><span class="w"> </span><span class="mi">6</span><span class="w"></span>
+<span class="n">PubkeyAuthentication</span><span class="w"> </span><span class="n">yes</span><span class="w"></span>
+<span class="n">PermitEmptyPasswords</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">ChallengeResponseAuthentication</span><span class="w"> </span><span class="n">yes</span><span class="w"></span>
+<span class="n">UsePAM</span><span class="w"> </span><span class="n">yes</span><span class="w"></span>
+<span class="n">X11Forwarding</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">X11UseLocalhost</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">PrintMotd</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">Compression</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">AllowTcpForwarding</span><span class="w"> </span><span class="n">yes</span><span class="w"></span>
+<span class="n">GatewayPorts</span><span class="w"> </span><span class="n">yes</span><span class="w"></span>
+<span class="n">ClientAliveCountMax</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="n">TCPKeepAlive</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">AllowAgentForwarding</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+<span class="n">AcceptEnv</span><span class="w"> </span><span class="n">LANG</span><span class="w"> </span><span class="n">LC_</span><span class="o">*</span><span class="w"></span>
+<span class="n">sftp</span><span class="w"> </span><span class="n">subsystem</span><span class="w"> </span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">ssh</span><span class="o">/</span><span class="n">sftp</span><span class="o">-</span><span class="n">server</span><span class="w"> </span><span class="o">-</span><span class="n">f</span><span class="w"> </span><span class="n">AUTHPRIV</span><span class="w"> </span><span class="o">-</span><span class="n">l</span><span class="w"> </span><span class="n">INFO</span><span class="w"></span>
+<span class="n">UseDNS</span><span class="w"> </span><span class="k">no</span><span class="w"></span>
+</code></pre></div>
+
+<h3>Client</h3>
+<h4>Generation of the public and private key, using the algo ed25519, with a 4096 bit key</h4>
+<p>ssh-keygen -t ed25519 -b 4096</p>
+<p>Generation of the public/private key pair ed25519.
+Enter the file where you want to save the key (/Users/pc/.ssh/id_ed25519):
+Enter the passphrase (empty for no passphrase):
+Enter the same passphrase again:
+Your identification has been saved in /Users/pc/.ssh/id_ed25519.
+Your public key has been saved in /Users/pc/.ssh/id_ed25519.pub.
+The key fingerprint is:
+SHA256: thingbidule pc@mypc.local
+The random image of the key is:
++&ndash;[ED25519 256]-+
++----[SHA256]-----+</p>
+<h4>We have these two keys, now we have to transfer the public key:</h4>
+<p>ssh-copy-id -i .ssh/id_ed25519.pub user@monip -p 6666</p>
+<p>/usr/bin/ssh-copy-id: INFO: Source of the key(s) to install: &ldquo;.ssh/id_ed25519.pub&rdquo;
+/usr/bin/ssh-copy-id: INFO: attempt to connect with the new key(s), to filter out those already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed &ndash; if you are prompted now, it is to install the new keys
+the user password@monip:</p>
+<p>Number of key(s) added: 1</p>
+<p>Now try to connect to the machine, with: &ldquo;ssh -p &lsquo;6666&rsquo; &lsquo;user@monip&rsquo;&rdquo; and check that only the keys you wanted were added.</p>
+<h4>We can now connect with a passphrase:</h4>
+<p>ssh -p &lsquo;6666&rsquo; &lsquo;user@myp&rsquo; (user@myp)
+Enter the passphrase for the key &lsquo;/Users/pc/.ssh/id_ed25519&rsquo;:</p>
+<h4>That&rsquo;s it!</h4>
+<p>user@servssh:~$</p>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

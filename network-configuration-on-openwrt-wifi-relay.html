@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Network configuration on OpenWRT (wifi relay) | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/network-configuration-on-openwrt-wifi-relay.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Categories Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/network.atom.xml">  
+  <meta name="description" content="Wifi relay">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv.pdf" target="_blank">CV (PDF)</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://github.com/maxime-sourdin" target="_blank">github</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Network configuration on OpenWRT (wifi relay)
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-08-15T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Aug 15, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/network">Network</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/openwrt">#Openwrt</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h1>/etc/config/wireless</h1>
+<div class="highlight"><pre><span></span><code>config wifi-device &#39;radio0&#39;
+        option type &#39;mac80211&#39;
+        option hwmode &#39;11g&#39;
+        option path &#39;platform/10300000.wmac&#39;
+        option htmode &#39;HT20&#39;
+        option disabled &#39;0&#39;
+        option country &#39;00&#39;
+
+     option legacy_rates &#39;1&#39;
+        option channel &#39;6&#39;
+
+config wifi-iface
+        option network &#39;wifirep&#39;
+        option ssid &#39;Livebox-442c&#39;
+
+option encryption &#39;psk2&#39;
+        option device &#39;radio0&#39;
+        option mode &#39;sta&#39;
+        option bssid &#39;$BSSID&#39;
+        option key &#39; &#39;
+</code></pre></div>
+
+<h1>/etc/config/network</h1>
+<div class="highlight"><pre><span></span><code><span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">loopback</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ifname</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lo</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">static</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ipaddr</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">27.0.0.1</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.0.0.0</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">globals</span><span class="w"> </span><span class="p">&#39;</span><span class="n">globals</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ula_prefix</span><span class="w"> </span><span class="p">&#39;</span><span class="nl">fdee:</span><span class="mh">45</span><span class="nl">b4:</span><span class="mf">8e97</span><span class="o">::/</span><span class="mh">48</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="p">&#39;</span><span class="n">bridge</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ifname</span><span class="w"> </span><span class="p">&#39;</span><span class="n">eth0</span><span class="mf">.1</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">static</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ip6assign</span><span class="w"> </span><span class="p">&#39;</span><span class="mh">60</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ipaddr</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">92.168.1.1</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="n">dns</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.1.2</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="n">dns</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">80.67.169.12</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan_dev</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">&#39;</span><span class="n">eth0</span><span class="mf">.1</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">macaddr</span><span class="w"> </span><span class="p">&#39;</span><span class="nl">c4:</span><span class="mh">71</span><span class="o">:</span><span class="mh">54</span><span class="o">:</span><span class="mh">39</span><span class="o">:</span><span class="mh">63</span><span class="o">:</span><span class="n">d2</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">wan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ifname</span><span class="w"> </span><span class="p">&#39;</span><span class="n">eth0</span><span class="mf">.2</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">dhcp</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">&#39;</span><span class="n">wan_dev</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">&#39;</span><span class="n">eth0</span><span class="mf">.2</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">macaddr</span><span class="w"> </span><span class="p">&#39;</span><span class="n">$MAC_ADDR</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">wan6</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ifname</span><span class="w"> </span><span class="p">&#39;</span><span class="n">eth0</span><span class="mf">.2</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">dhcpv6</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">switch</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">&#39;</span><span class="n">switch0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">reset</span><span class="w"> </span><span class="sc">&#39;1&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">enable_vlan</span><span class="w"> </span><span class="sc">&#39;1&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">switch_vlan</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">&#39;</span><span class="n">switch0</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">vlan</span><span class="w"> </span><span class="sc">&#39;1&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ports</span><span class="w"> </span><span class="m">&#39;1</span><span class="w"> </span><span class="mh">2</span><span class="w"> </span><span class="mh">3</span><span class="w"> </span><span class="mh">4</span><span class="w"> </span><span class="mh">6</span><span class="n">t</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">switch_vlan</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="p">&#39;</span><span class="n">switch0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">vlan</span><span class="w"> </span><span class="sc">&#39;2&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ports</span><span class="w"> </span><span class="m">&#39;0</span><span class="w"></span>
+<span class="mh">6</span><span class="n">t</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">bridge_wifi</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">relay</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="p">&#39;</span><span class="n">wifirep</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">wifirep</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">proto</span><span class="w"> </span><span class="p">&#39;</span><span class="n">static</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">ipaddr</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.3</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">broadcast</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.255</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="n">dns</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.1.2</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;0</span><span class="mf">.0.0.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="m">&#39;0</span><span class="mf">.0.0.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.1.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.0.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.248</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">lan</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.15.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.0</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">bridge_wifi</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;0</span><span class="mf">.0.0.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="m">&#39;0</span><span class="mf">.0.0.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.14.254</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="n">config</span><span class="w"> </span><span class="n">route</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">interface</span><span class="w"> </span><span class="p">&#39;</span><span class="n">bridge_wifi</span><span class="p">&#39;</span><span class="w"></span>
+
+<span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.1.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">netmask</span><span class="w"> </span><span class="p">&#39;</span><span class="mf">255.255.255.0</span><span class="p">&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="n">option</span><span class="w"> </span><span class="n">gateway</span><span class="w"> </span><span class="m">&#39;1</span><span class="mf">72.16.1.254</span><span class="p">&#39;</span><span class="w"></span>
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>

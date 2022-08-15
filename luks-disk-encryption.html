@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  LUKS - Disk encryption | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/luks-disk-encryption.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Categories Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/hardening.atom.xml">  
+  <meta name="description" content="Simply encrypt your disk">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv.pdf" target="_blank">CV (PDF)</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://github.com/maxime-sourdin" target="_blank">github</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  LUKS - Disk encryption
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-08-15T18:00:00+02:00">
+          <!-- <i class="fas fa-clock"></i>
+          Aug 15, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/hardening">Hardening</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/encryption">#Encryption</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h1>Encrypt a disk</h1>
+<h2>Dependencies</h2>
+<div class="highlight"><pre><span></span><code>sudo apt install -y crypsetup
+</code></pre></div>
+
+<h2>Partitioning</h2>
+<div class="highlight"><pre><span></span><code>fdisk /dev/sdb
+n (Create new partition)
+p (Primary partition)
+1 (Partition number)
+2048 (default Start of partition)
++64G (Partition size 64GB)
+w (Confirm disk partitioning)
+</code></pre></div>
+
+<h2>Disk encryption</h2>
+<div class="highlight"><pre><span></span><code><span class="nv">sudo</span> <span class="nv">cryptsetup</span> <span class="nv">luksFormat</span> <span class="o">-</span><span class="nv">c</span> <span class="nv">aes</span> <span class="o">-</span><span class="nv">h</span> <span class="nv">sha256</span> <span class="o">/</span><span class="nv">dev</span><span class="o">/</span><span class="nv">sdb1</span>
+
+
+<span class="nv">WARNING</span><span class="o">!</span>
+<span class="nv">This</span> <span class="nv">action</span> <span class="nv">will</span> <span class="nv">permanently</span> <span class="nv">overwrite</span> <span class="nv">the</span> <span class="nv">data</span> <span class="nv">on</span> <span class="o">/</span><span class="nv">dev</span><span class="o">/</span><span class="nv">sdb1</span>.
+
+<span class="nv">Are</span> <span class="nv">you</span> <span class="nv">sure</span>? <span class="ss">(</span><span class="nv">Type</span> <span class="nv">uppercase</span> <span class="nv">yes</span><span class="ss">)</span>: <span class="nv">YES</span>
+<span class="nv">Enter</span> <span class="nv">the</span> <span class="nv">secret</span> <span class="nv">phrase</span> <span class="k">for</span> <span class="o">/</span><span class="nv">dev</span><span class="o">/</span><span class="nv">sdb1</span>: <span class="nv">menezdaou</span>
+<span class="nv">Verify</span> <span class="nv">the</span> <span class="nv">secret</span> <span class="nv">phrase</span>: <span class="nv">menezdaou</span>
+</code></pre></div>
+
+<h2>Using encrypted disk</h2>
+<div class="highlight"><pre><span></span><code>sudo crypsetup luksOpen /dev/sdb1 mydisk
+</code></pre></div>
+
+<h2>Format disk</h2>
+<div class="highlight"><pre><span></span><code>sudo mkfs.ext4 /dev/mapper/mondisc
+</code></pre></div>
+
+<h2>Mount disk</h2>
+<div class="highlight"><pre><span></span><code>sudo mkdir /mnt/mount
+sudo mount /dev/mapper/mondisque /mnt/mondisque
+</code></pre></div>
+
+<h1>Expand a virtual disk encrypted by LUKS</h1>
+<h2>Enlarge disk under GUI</h2>
+<p>For example, enlarge the virtual disk under Proxmox. 
+It should be based on the number allocated to the SCSI port, if you have several disks with a similar allocated space.</p>
+<h2>Enlarge partition</h2>
+<h3>Unmount the partition</h3>
+<div class="highlight"><pre><span></span><code>     sudo umount /srv/dev-disk-by-label-unshare
+</code></pre></div>
+
+<h3>Lock the disk:</h3>
+<div class="highlight"><pre><span></span><code>      sudo cryptsetup luksClose /dev/mapper/sde-crypt
+</code></pre></div>
+
+<h3>Unlock and remount</h3>
+<p>For example, you can now unlock it with the OpenMediaVault web interface and remount it (nothing prevents you from doing it on the command line of course).</p>
+<h3>Resize the file system on the encrypted disk:</h3>
+<div class="highlight"><pre><span></span><code>     sudo resize2fs -p /dev/mapper/sdg-crypt
+</code></pre></div>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>
