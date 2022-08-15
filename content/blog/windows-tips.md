@@ -2,8 +2,9 @@ Title: Windows tips
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Windows
-Tags: Tweaks
+Tags: Tips
 Summary: Setting Power/Domain/Cleaning on Windows
+save_as: windows_tips.html
 
 ## Setting power mode
 

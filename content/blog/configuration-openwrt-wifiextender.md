@@ -4,6 +4,7 @@ Authors: Maxime SOURDIN
 Category: Network
 Tags: Openwrt
 Summary: Wifi relay
+save_as: openwrt-network-configuration.html
 
 # /etc/config/wireless
 

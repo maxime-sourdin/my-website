@@ -3,7 +3,8 @@ Date: 2019:21:10 18:00
 Author: Maxime SOURDIN
 Category: Hardening
 Summary: A few commands to strengthen your server
-Tags: Cheatsheet
+Tags: Tips
+save_as: hardening.html
 
 ## Important Packages
 

@@ -3,9 +3,8 @@ Date: 2019:21:10 18:00
 Author: Maxime SOURDIN
 Category: Mac
 Tags: Hackintosh
-Summary: Using a Vostro 7590 as Hackintosh
-
-Feedback on using MacOS on a Dell Vostro/Inspiron 7590 (hackintosh)
+Summary: A feedback on using MacOS on a Dell Vostro/Inspiron 7590
+save_as: dell-vostro-7590-hackintosh.html
 
 What works:
 

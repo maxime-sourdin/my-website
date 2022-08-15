@@ -1,10 +1,10 @@
 Title: Playing with shell
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
-Category: Security
+Category: Shell
 Summary: Some shell tips
-Tags: Shell
-
+Tags: Tips
+save_as: shell-tips.html
 
 # One liner Trivy
     for image in $(docker image ls | awk '{print $1,$2}' | sed -e "s/ /:/g" | sed '/REPOSITORY:TAG/d'); do docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v caches:/root/.cache/ aquasec/trivy $image >> output ; done

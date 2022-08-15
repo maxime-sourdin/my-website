@@ -1,10 +1,10 @@
 Title: OVH Tips
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
-Category: Backup
-Tags: OVH
+Category: OVH
+Tags: Tips
 Summary: Some tips on OVH
-
+save_as: ovh-tips.html
 
 # Boot rescue mode
 

@@ -2,8 +2,9 @@ Title: Useful Proxmox commands
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Hypervisor
-Tags: Proxmox
+Tags: Tips
 Summary: Some commands for pct/qm/vzdump
+save_as: proxmox-tips.html
 
 __Stop backup:__
 

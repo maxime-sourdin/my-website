@@ -2,8 +2,9 @@ Title: Some DNS Tips
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Network
-Tags: DNS
+Tags: Tips
 Summary: Simple configuration of unbound and dnscrypt-proxy
+save_as: dns-tips.html
 
 # Unbound
 
