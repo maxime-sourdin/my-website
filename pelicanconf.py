@@ -33,8 +33,6 @@ REVERSE_ARCHIVE_ORDER = True
 DISPLAY_PAGES_ON_MENU = False
 THEME = 'themes/pelican-alchemy/alchemy'
 THEME_CSS_OVERRIDES = ['theme/css/oldstyle.css']
-PLUGIN_PATHS = ["plugins"]
-PLUGINS = ["sitemap", "pelican-redirect", "pelican-gitpython"]
 SITEMAP = {
     'format': 'txt',
     'exclude': ['tag/', 'category/'],

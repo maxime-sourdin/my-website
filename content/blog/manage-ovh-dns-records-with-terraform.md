@@ -22,7 +22,7 @@ Do not hesitate to store these tokens on a [Vault](https://learn.hashicorp.com/t
 
 ## S3 Provider
 
-1 - Download OpenStack RC file from  Horizon GUI.
+1- Download OpenStack RC file from  Horizon GUI.
 
 2- Source it: source openstack-rc.sh
 
