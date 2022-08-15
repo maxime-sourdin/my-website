@@ -17,3 +17,5 @@ six
 unidecode
 pelican-sitemap
 ghp-import
+pelican-redirect
+gitpython

@@ -34,7 +34,7 @@ DISPLAY_PAGES_ON_MENU = False
 THEME = 'themes/pelican-alchemy/alchemy'
 THEME_CSS_OVERRIDES = ['theme/css/oldstyle.css']
 PLUGIN_PATHS = ["plugins"]
-PLUGINS = ["sitemap"]
+PLUGINS = ["sitemap", "redirect", "gitpython"]
 SITEMAP = {
     'format': 'txt',
     'exclude': ['tag/', 'category/'],

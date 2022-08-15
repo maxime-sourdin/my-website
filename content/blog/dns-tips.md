@@ -5,7 +5,7 @@ Category : Network
 Tags : DNS
 Summary : Simple configuration of unbound and dnscrypt-proxy
 
-# Unbound 
+# Unbound
 
 ## Edit /etc/unbound/unbound.conf
 

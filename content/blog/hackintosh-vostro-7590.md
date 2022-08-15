@@ -9,11 +9,11 @@ Feedback on using MacOS on a Dell Vostro/Inspiron 7590 (hackintosh)
 
 What works:
 
--HDMI
--Camera
--USB
+- HDMI
+- Camera
+- USB
 - USB Type-C / Thunderbolt3
--Bluetooth
+- Bluetooth
 - Standby
 - Airplay (!!)
 
@@ -43,6 +43,6 @@ For Wifi, things are progressing, thanks to two projects:
 
 - <a href="https://github.com/AppleIntelWifi/adapter">AppleIntelWifi</a>
 
-Level <a href="https://browser.geekbench.com/v5/cpu/1919290" >benchmarks </a>, it's not bad, it's approaching a MacBookPro 16P from 2019, with the same processor, sold for 2700 euros (but not limited by the integrated GPU and which obviously does not have the hackintosh malfunctions).
+I made <a href="https://browser.geekbench.com/v5/cpu/1919290" >benchmarks </a>, it's not bad, it's approaching a MacBookPro 16P from 2019, with the same processor, sold for 2700 euros (but not limited by the integrated GPU and which obviously does not have the hackintosh malfunctions).
 
-At the stability level, I had some small problems, but it seems inherent to Catalina. The boot, meanwhile, is faster than on a real Mac, and the ventilation is better managed.
+At the stability level, I had some small problems, but it seems inherent to Catalina. The boot, meanwhile, is faster than on a real Mac.

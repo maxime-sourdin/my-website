@@ -54,24 +54,20 @@ __Map local folder on a container:__
 
 	sudo mkdir /storage/images/999/ && sudo dd if=/dev/zero of=/storage/images/999/le.raw bs=4k count=12500
 
-
 ## Formatting in ext4
 
 
     sudo mkfs.ext4 /storage/images/999/le.raw
-
 
 ## Disable virtual disk mount checks and control
 
 
     sudo tune2fs -c0 -i0 /storage/images/999/le.raw
 
-
 ## Create a mount folder and mount
 
 
     sudo mkdir /media/test && sudo mount -o loop /storage/images/999/le.raw /media/test/
-
 
 ## Final container configuration on Proxmox:
 

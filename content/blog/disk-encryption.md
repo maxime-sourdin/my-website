@@ -5,12 +5,12 @@ Category: Hardening
 Tags: Encryption
 Summary: Simply encrypt your disk
 
+# Encrypt a disk
 
-------------------------------------
+## Dependencies
 	sudo apt install -y crypsetup
 
-----------------------------
-Partitioning
+## Partitioning
 
 	fdisk /dev/sdb
 	n (Create new partition)
@@ -20,8 +20,7 @@ Partitioning
 	+64G (Partition size 64GB)
 	w (Confirm disk partitioning)
 
-----------------------------
-Encryption
+## Disk encryption
 
 	sudo cryptsetup luksFormat -c aes -h sha256 /dev/sdb1
 
@@ -33,21 +32,40 @@ Encryption
 	Enter the secret phrase for /dev/sdb1: menezdaou
 	Verify the secret phrase: menezdaou
 
-----------------------------
-Decrypt the disk
+## Using encrypted disk
 
 	sudo crypsetup luksOpen /dev/sdb1 mydisk
 
-----------------------------
-Format
+## Format disk
 
 	sudo mkfs.ext4 /dev/mapper/mondisc
 
-----------------------------
-Mount
+## Mount disk
 
 	sudo mkdir /mnt/mount
 	sudo mount /dev/mapper/mondisque /mnt/mondisque
 
+# Expand a virtual disk encrypted by LUKS
 
-Translated with www.DeepL.com/Translator (free version)
+## Enlarge disk under GUI
+
+For example, enlarge the virtual disk under Proxmox. 
+It should be based on the number allocated to the SCSI port, if you have several disks with a similar allocated space.
+
+## Enlarge partition
+
+### Unmount the partition 
+
+         sudo umount /srv/dev-disk-by-label-unshare
+
+### Lock the disk:
+
+          sudo cryptsetup luksClose /dev/mapper/sde-crypt
+
+### Unlock and remount
+
+For example, you can now unlock it with the OpenMediaVault web interface and remount it (nothing prevents you from doing it on the command line of course).
+
+### Resize the file system on the encrypted disk:
+
+         sudo resize2fs -p /dev/mapper/sdg-crypt

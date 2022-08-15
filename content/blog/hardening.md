@@ -40,6 +40,28 @@ Tags: Cheatsheet
 
     for i in {1..254}; do nmap -sp --max-retries=1 --host-timeout=1500ms 192.168..1-254 | grep -Ev "Starting Nmap 7.70|Nmap done: 254 IP addresses"; done
 
+## Nginx
+
+### Rickroll bots
+
+#### Edit /etc/nginx/snippets/rickroll.conf
+
+    error_page 404 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+    error_page 500 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+    error_page 501 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+    error_page 502 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+    error_page 503 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+    error_page 504 =301 https://youtu.be/dQw4w9WgXcQ?t=44;
+
+#### Edit /etc/nginx/snippets/monsite.conf
+
+    include ../snippets/rickroll.conf;
+
+#### Restart Nginx
+
+	sudo systemctl restart nginx
+
+
 ## Fail2ban
 ### Jails
 
@@ -224,7 +246,7 @@ Install clamav, update its database, and run a scan every night on the space to 
     sftp subsystem /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
     UseDNS no
 
-### Customer
+### Client
 
 #### Generation of the public and private key, using the algo ed25519, with a 4096 bit key
 

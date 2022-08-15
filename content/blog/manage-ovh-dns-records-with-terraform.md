@@ -1,4 +1,5 @@
-Title: Managing DNS records at OVH with Terraform (with state storage on an S3 bucket)
+Title: Managing OVH DNS records with Terraform (with state storage on an S3 bucket)
+original_url: managing-dns-records-at-ovh-with-terraform-with-state-storage-on-an-s3-bucket
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Automation

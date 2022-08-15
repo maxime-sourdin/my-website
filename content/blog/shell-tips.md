@@ -1,9 +1,9 @@
-Title: Exploiting Trivy
+Title: Playing with shell
 Date: 2019:21:10 18:00
 Authors: Maxime SOURDIN
 Category: Security
-Summary: Some Trivy tips
-Tags: Trivy
+Summary: Some shell tips
+Tags: Shell
 
 
 # One liner Trivy
