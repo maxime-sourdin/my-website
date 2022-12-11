@@ -3,8 +3,8 @@ Authors: Maxime SOURDIN
 save_as: cv.html
 
 # About
-- **22 years**
-- **Tech Lead Junior at Orange Business Services**
+- **23 years**
+- **Cloud engineer at Orange Business Services**
 - Linkedin: **[linkedin.com/in/maxime-sourdin-15b082154](https://linkedin.com/in/maxime-sourdin-15b082154)**
 - Mail: **[maxime@sourdin.ovh](mailto:maxime@sourdin.ovh)**
 - Languages: **English (TOEIC: 620)**, **French (Native language)**
@@ -20,7 +20,7 @@ save_as: cv.html
 - **Web services: CloudFront**, Traefik, Nginx
 - **Artefact storage**: ECR, Nexus3
 - **Get financial and usage reports**: Kubecost, Infracost
-- **Scripting**: Python, Bash, Powershell, Batch
+- **Scripting & Development**: Python, Bash, Powershell, Batch
 - **Providers used**: AWS, FlexibleEngine, OVH, Scaleway
 
 ### *Monitoring*
@@ -61,9 +61,11 @@ save_as: cv.html
 
 Orange Business Services, <span>**10/2021- Now**</span>
 
-- Improving monitoring system
-- Implementing FinOps solution (Kubecost)
-- Work on network security policies and security policies on Kubernetes
+- Improving monitoring system && implementing dashboard provisionning
+- Implementing FinOps solution (Kubecost) with custom dashboards 
+- Working on custom exporters for Flexible Engine, for FinOPS and monitoring
+- Improving script for billing on AWX
+- Working on network security policies and security policies on Kubernetes
 
 ### <span>Apprenticeship: Cloud specialist</span>
 
