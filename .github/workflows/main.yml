@@ -14,8 +14,9 @@ jobs:
           python-version: "3.10"
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: GitHub Pages Pelican Build Action
-        uses: nelsonjchen/gh-pages-pelican-action@0.1.10
-        env:
-          GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
-          GH_PAGES_CNAME: ${{secrets.DOMAIN_CNAME}}
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: output # The folder the action should deploy.
