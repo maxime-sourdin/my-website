@@ -1,4 +1,4 @@
-name: Build blog
+name: Publish my website
 
 on:
   push:
@@ -14,6 +14,8 @@ jobs:
           python-version: "3.10"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Build website
+        run: make html    
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
