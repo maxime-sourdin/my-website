@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Maxime SOURDIN - Self-hosting</title><link href="https://maxime.sourdin.ovh/" rel="alternate"></link><link href="https://maxime.sourdin.ovh/feeds/self-hosting.atom.xml" rel="self"></link><id>https://maxime.sourdin.ovh/</id><updated>2022-12-11T18:00:00+01:00</updated><entry><title>Cleaning a Mastodon instance</title><link href="https://maxime.sourdin.ovh/cleaning-a-mastodon-instance" rel="alternate"></link><published>2022-12-11T18:00:00+01:00</published><updated>2022-12-11T18:00:00+01:00</updated><author><name>Maxime SOURDIN</name></author><id>tag:maxime.sourdin.ovh,2022-12-11:/cleaning-a-mastodon-instance</id><summary type="html">&lt;p&gt;Save some space on your instance&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Cleaning the cache&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;RAILS_ENV=production bin/tootctl cache clear
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1&gt;Cleaning up orphaned media&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;RAILS_ENV=production bin/tootctl media remove-orphans
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1&gt;Cleaning up 3 months old media (default)&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;RAILS_ENV=production bin/tootctl media remove
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1&gt;Cleaning up inactive accounts&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;RAILS_ENV=production bin/tootctl accounts cull
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content><category term="Self-hosting"></category><category term="Mastodon"></category></entry></feed>

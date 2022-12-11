@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Maxime SOURDIN - Mac</title><link href="https://maxime.sourdin.ovh/" rel="alternate"></link><link href="https://maxime.sourdin.ovh/feeds/mac.atom.xml" rel="self"></link><id>https://maxime.sourdin.ovh/</id><updated>2022-12-11T18:00:00+01:00</updated><entry><title>Hackintosh Vostro 7590</title><link href="https://maxime.sourdin.ovh/hackintosh-vostro-7590" rel="alternate"></link><published>2022-12-11T18:00:00+01:00</published><updated>2022-12-11T18:00:00+01:00</updated><author><name>Maxime SOURDIN</name></author><id>tag:maxime.sourdin.ovh,2022-12-11:/hackintosh-vostro-7590</id><summary type="html">&lt;p&gt;A feedback on using MacOS on a Dell Vostro/Inspiron 7590&lt;/p&gt;</summary><content type="html">&lt;h1&gt;What works:&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;HDMI&lt;/li&gt;
+&lt;li&gt;Camera&lt;/li&gt;
+&lt;li&gt;USB&lt;/li&gt;
+&lt;li&gt;USB Type-C / Thunderbolt3&lt;/li&gt;
+&lt;li&gt;Bluetooth&lt;/li&gt;
+&lt;li&gt;Standby&lt;/li&gt;
+&lt;li&gt;Airplay (!!)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;What doesn&amp;rsquo;t work:&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Wireless&lt;/li&gt;
+&lt;li&gt;Microphone&lt;/li&gt;
+&lt;li&gt;SD card reader&lt;/li&gt;
+&lt;li&gt;the GTX 1050 3GB&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;Procedure&lt;/h1&gt;
+&lt;p&gt;The bootable key was created with this &lt;a href="https://dortania.github.io/OpenCore-Desktop-Guide/installer-guide/winblows-install.html"&gt;guide&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;As soon as the bootable key is created, you must access the EFI partition, which is called BOOT, go to the EFI folder. You have to download this &lt;a href="https://github.com/Pinming/Dell-Inspiron-7590-Hackintosh-Opencore/archive/master.zip"&gt;archive &lt;/a&gt; and unzip it in the OC folder, overwriting existing files.&lt;/p&gt;
+&lt;p&gt;Afterwards, you have to restart on the key, and it is the Catalina recovery mode that will be displayed. It is necessary to allocate an entire disk for Catalina. If you have an ADSL connection, the next step will be quite long, because the installer downloads what is needed for Catalina.&lt;/p&gt;
+&lt;p&gt;Finally, at the end of the installation, and at the restart, you must choose to boot from the disk. The disk&amp;rsquo;s EFI partition must be mounted.&lt;/p&gt;
+&lt;p&gt;sudo mkdir /Volumes/efi
+sudo mount -t msdos /dev/disk0s1 /Volumes/efi&lt;/p&gt;
+&lt;p&gt;Afterwards, it is possible to copy the contents of the EFI partition of the USB key there, with the Finder.&lt;/p&gt;
+&lt;p&gt;For Wifi, things are progressing, thanks to two projects:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://github.com/zxystd/itlwm"&gt;itwlm&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://github.com/AppleIntelWifi/adapter"&gt;AppleIntelWifi&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I made &lt;a href="https://browser.geekbench.com/v5/cpu/1919290" &gt;benchmarks &lt;/a&gt;, it&amp;rsquo;s not bad, it&amp;rsquo;s approaching a MacBookPro 16P from 2019, with the same processor, sold for 2700 euros (but not limited by the integrated GPU and which obviously does not have the hackintosh malfunctions).&lt;/p&gt;
+&lt;p&gt;At the stability level, I had some small problems, but it seems inherent to Catalina. The boot, meanwhile, is faster than on a real Mac.&lt;/p&gt;</content><category term="Mac"></category><category term="Hackintosh"></category></entry></feed>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>  Managing OVH DNS records with Terraform (with state storage on a S3 bucket) | Maxime SOURDIN
+</title>
+  <link rel="canonical" href="https://maxime.sourdin.ovh/managing-ovh-dns-records-with-terraform-with-state-storage-on-a-s3-bucket.html">
+
+
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/pygments/default.min.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/theme.css">
+  <link rel="stylesheet" href="https://maxime.sourdin.ovh/theme/css/oldstyle.css">
+
+  <link rel="alternate" type="application/atom+xml" title="Full Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/all.atom.xml">
+  <link rel="alternate" type="application/atom+xml" title="Categories Atom Feed"
+        href="https://maxime.sourdin.ovh/feeds/automation.atom.xml">  
+  <meta name="description" content="Save some time without using IHM">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+<div class="row">
+  <div class="col-sm-12">
+    <h1 class="title"><a href="https://maxime.sourdin.ovh/">Maxime SOURDIN</a></h1>
+      <ul class="list-inline">
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv" target="_blank">CV</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/cv.pdf" target="_blank">CV (PDF)</a></li>
+          <li class="list-inline-item"><a href="https://linkedin.com/in/maxime-sourdin-15b082154" target="_blank">linkedin</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/mailto:maxime at sourdin.ovh" target="_blank">email</a></li>
+          <li class="list-inline-item"><a href="https://github.com/maxime-sourdin" target="_blank">github</a></li>
+          <li class="list-inline-item"><a href="https://maxime.sourdin.ovh/author/maxime-sourdin" target="_blank">blog</a></li>
+      </ul>
+  </div>
+</div>    </div>
+  </header>
+
+  <div class="main">
+    <div class="container">
+      <h1>  Managing OVH DNS records with Terraform (with state storage on a S3 bucket)
+</h1>
+  <article class="article">
+    <header>
+      <ul class="list-inline">
+        <li class="list-inline-item text-muted" title="2022-12-11T18:00:00+01:00">
+          <!-- <i class="fas fa-clock"></i>
+          Dec 11, 2022 -->
+        </li>
+        <li class="list-inline-item">
+          <i class="fas fa-folder-open"></i>
+          <a href="https://maxime.sourdin.ovh/automation">Automation</a>
+        </li>
+          <li class="list-inline-item">
+            <i class="fas fa-tag"></i>
+              <a href="https://maxime.sourdin.ovh/tag/terraform">#Terraform</a>          </li>
+      </ul>
+    </header>
+    <div class="content">
+      <h1>Prerequisites</h1>
+<ul>
+<li>Terraform is installed on your machine</li>
+<li>You have an OVH account</li>
+<li>You have a bucket on Infomaniak/OVH</li>
+</ul>
+<h1>Generate tokens</h1>
+<h2>OVH</h2>
+<p><a href="https://yunohost.org/en/providers/registrar/ovh/autodns">You can follow this tutorial, clear enough</a> to create the required tokens on OVH.</p>
+<p>Do not hesitate to store these tokens on a <a href="https://learn.hashicorp.com/tutorials/vault/getting-started-install?in=vault/getting-started">Vault</a>, storing them in the clear is literally forbidden, at the risk of having bad surprises with your DNS zone.</p>
+<h2>S3 Provider</h2>
+<p>1- Download OpenStack RC file from  Horizon GUI.</p>
+<p>2- Source it: source openstack-rc.sh</p>
+<p>3- Create new credentials</p>
+<div class="highlight"><pre><span></span><code>openstack ec2 credentials create
+</code></pre></div>
+
+<p>4- Keep these credentials on Vault</p>
+<h1>Setting up Github repo</h1>
+<h2>Create new repo on Github</h2>
+<h2>Create new secrets for Actions, like this:</h2>
+<div class="highlight"><pre><span></span><code>APPLICATION_KEY
+APPLICATION_SECRET
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+CONSUMER_KEY
+</code></pre></div>
+
+<h2>Adding essentials files</h2>
+<h3>versions.tf</h3>
+<div class="highlight"><pre><span></span><code>terraform {
+required_version = &quot;~&gt; 1.0&quot;
+
+required_providers {
+    ovh = {
+    source  = &quot;ovh/ovh&quot;
+    version = &quot;~&gt; 0.19&quot;
+    }
+}
+}
+</code></pre></div>
+
+<h3>variables.tf</h3>
+<div class="highlight"><pre><span></span><code><span class="n">variable</span><span class="w"> </span><span class="s2">&quot;APPLICATION_KEY&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;application key&quot;</span><span class="w"></span>
+<span class="n">type</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">variable</span><span class="w"> </span><span class="s2">&quot;APPLICATION_SECRET&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;application secret&quot;</span><span class="w"></span>
+<span class="n">type</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">variable</span><span class="w"> </span><span class="s2">&quot;CONSUMER_KEY&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;consumer key&quot;</span><span class="w"></span>
+<span class="n">type</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+
+<span class="n">variable</span><span class="w"> </span><span class="s2">&quot;records&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;records to be created&quot;</span><span class="w"></span>
+<span class="n">type</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">any</span><span class="p">)</span><span class="w"></span>
+<span class="n">default</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="n">record1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">zone</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sourdin.ovh&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">subdomain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;maxime&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">fieldtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ttl</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">target</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;192.168.1.1&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<h3>provider.tf</h3>
+<div class="highlight"><pre><span></span><code><span class="n">provider</span><span class="w"> </span><span class="s2">&quot;ovh&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">endpoint</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ovh-eu&quot;</span><span class="w"></span>
+<span class="n">application_key</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">var</span><span class="o">.</span><span class="n">APPLICATION_KEY</span><span class="w"></span>
+<span class="n">application_secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">var</span><span class="o">.</span><span class="n">APPLICATION_SECRET</span><span class="w"></span>
+<span class="n">consumer_key</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="k">var</span><span class="o">.</span><span class="n">CONSUMER_KEY</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Here, we configure the OVH DNS provider, it will look for its secrets in variables (that&rsquo;s why &lsquo;TF_VAR_&rsquo; preced the variable name)</p>
+<h3>main.tf</h3>
+<div class="highlight"><pre><span></span><code><span class="n">resource</span><span class="w"> </span><span class="s2">&quot;ovh_domain_zone_record&quot;</span><span class="w"> </span><span class="s2">&quot;dns_record_terajob&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">for_each</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">var</span><span class="o">.</span><span class="n">records</span><span class="w"></span>
+<span class="n">zone</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">each</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">zone</span><span class="w"></span>
+<span class="n">subdomain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">each</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">subdomain</span><span class="w"></span>
+<span class="n">fieldtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">each</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">fieldtype</span><span class="w"></span>
+<span class="n">ttl</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">each</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">ttl</span><span class="w"></span>
+<span class="n">target</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">each</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">target</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<h3>backend.tf</h3>
+<div class="highlight"><pre><span></span><code><span class="n">terraform</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="n">backend</span><span class="w"> </span><span class="s">&quot;s3&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bucket</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;terraform-state&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">region</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">key</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;dns/sourdin.tfstate&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="n">encrypt</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">false</span><span class="w"></span>
+<span class="w">    </span><span class="n">endpoint</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s">&quot;s3.pub1.infomaniak.cloud&quot;</span><span class="w">  </span>
+<span class="w">    </span><span class="n">force_path_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">true</span><span class="w"></span>
+<span class="w">    </span><span class="n">skip_credentials_validation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">true</span><span class="w"></span>
+<span class="w">    </span><span class="n">skip_region_validation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">true</span><span class="w">    </span>
+<span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+
+<p>Here, you can configure on which bucket the states will be saved, the provider&rsquo;s endpoint and region.</p>
+<h2>Configure Github actions</h2>
+<h3>.github/workflows/main.yml</h3>
+<div class="highlight"><pre><span></span><code><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">ovh_dns_management</span><span class="w"></span>
+<span class="n">on</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">push</span><span class="o">,</span><span class="w"> </span><span class="n">pull_request</span><span class="o">]</span><span class="w"></span>
+<span class="n">jobs</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">build</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">OVH</span><span class="w"> </span><span class="n">DNS</span><span class="w"></span>
+<span class="w">        </span><span class="n">runs</span><span class="o">-</span><span class="n">on</span><span class="o">:</span><span class="w"> </span><span class="n">ubuntu</span><span class="o">-</span><span class="mf">20.04</span><span class="w"></span>
+<span class="w">        </span><span class="n">env</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">CONSUMER_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.CONSUMER_KEY }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">APPLICATION_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.APPLICATION_KEY }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">APPLICATION_SECRET</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.APPLICATION_SECRET }}&quot;</span><span class="w">    </span>
+<span class="w">            </span><span class="n">TF_VAR_CONSUMER_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.CONSUMER_KEY }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">TF_VAR_APPLICATION_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.APPLICATION_KEY }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">TF_VAR_APPLICATION_SECRET</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.APPLICATION_SECRET }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">AWS_ACCESS_KEY_ID</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.AWS_ACCESS_KEY_ID }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">AWS_SECRET_ACCESS_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.AWS_SECRET_ACCESS_KEY }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">TF_VAR_AWS_ACCESS_KEY_ID</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.AWS_ACCESS_KEY_ID }}&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="n">TF_VAR_AWS_SECRET_ACCESS_KEY</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;${{ secrets.AWS_SECRET_ACCESS_KEY }}&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="n">steps</span><span class="o">:</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Checkout</span><span class="w"> </span><span class="n">code</span><span class="w"></span>
+<span class="w">            </span><span class="n">uses</span><span class="o">:</span><span class="w"> </span><span class="n">actions</span><span class="o">/</span><span class="n">checkout</span><span class="err">@</span><span class="n">v3</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Setup</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span>
+<span class="w">            </span><span class="n">uses</span><span class="o">:</span><span class="w"> </span><span class="n">hashicorp</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">terraform</span><span class="err">@</span><span class="n">v2</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<span class="w">            </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">fmt</span><span class="w"></span>
+<span class="w">            </span><span class="n">run</span><span class="o">:</span><span class="w"> </span><span class="n">terraform</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">-</span><span class="n">check</span><span class="w"></span>
+<span class="w">            </span><span class="k">continue</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span><span class="n">Init</span><span class="w"></span>
+<span class="w">            </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="w">            </span><span class="n">run</span><span class="o">:</span><span class="w"> </span><span class="n">terraform</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="w">            </span><span class="k">continue</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span><span class="n">Validate</span><span class="w"></span>
+<span class="w">            </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">validate</span><span class="w"></span>
+<span class="w">            </span><span class="n">run</span><span class="o">:</span><span class="w"> </span><span class="n">terraform</span><span class="w"> </span><span class="n">validate</span><span class="w"> </span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">color</span><span class="w"></span>
+<span class="w">            </span><span class="k">continue</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span><span class="n">Plan</span><span class="w"></span>
+<span class="w">            </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">plan</span><span class="w"></span>
+<span class="w">            </span><span class="n">run</span><span class="o">:</span><span class="w"> </span><span class="n">terraform</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">color</span><span class="w"> </span><span class="o">-</span><span class="n">input</span><span class="o">=</span><span class="kc">false</span><span class="w"></span>
+<span class="w">            </span><span class="k">continue</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="n">Terraform</span><span class="w"> </span><span class="n">Apply</span><span class="w"></span>
+<span class="w">            </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">apply</span><span class="w"></span>
+<span class="w">            </span><span class="n">run</span><span class="o">:</span><span class="w"> </span><span class="n">terraform</span><span class="w"> </span><span class="n">apply</span><span class="w"> </span><span class="o">-</span><span class="n">no</span><span class="o">-</span><span class="n">color</span><span class="w"> </span><span class="o">-</span><span class="n">auto</span><span class="o">-</span><span class="n">approve</span><span class="w"></span>
+<span class="w">            </span><span class="k">continue</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">error</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+</code></pre></div>
+
+<p>Several steps here:</p>
+<ul>
+<li>
+<p>We define the name of the action, and when it&rsquo;s triggered (push, pull request).</p>
+</li>
+<li>
+<p>Then we prepare the environment, which runs on Ubuntu 20.04. We also define the environment variables necessary for Terraform</p>
+</li>
+<li>
+<p>Then we define each action:</p>
+<ul>
+<li>We check the code, we install Terraform</li>
+<li>Formatting and cleaning the Terraform files</li>
+<li>Prepare the runtime environment, by retrieving the dependencies (providers)</li>
+<li>Revalidate the syntax and the actions</li>
+<li>We prepare the Terraform action plan (everything it will do in relation to the existant objects).</li>
+<li>We apply if everything is OK.</li>
+</ul>
+</li>
+</ul>
+<h2>Enjoy !</h2>
+<p>Each time you re-add a new DNS entry in variables.tf, the CI/CD chain will restart, and add the sub-domain, with the added bonus of storing the current state of the DNS records on an S3 bucket</p>
+    </div>
+  </article>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+<div class="row">
+  <ul class="col-sm-6 list-inline">
+  </ul>
+  <p class="col-sm-6 text-sm-right text-muted">
+    Generated by <a href="https://github.com/getpelican/pelican" target="_blank">Pelican</a>
+    / <a href="https://github.com/nairobilug/pelican-alchemy" target="_blank">&#x2728;</a>
+  </p>
+</div>    </div>
+  </footer>
+
+</body>
+</html>
