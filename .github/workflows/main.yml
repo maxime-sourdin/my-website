@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: "3.10"
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt && apt install -y ffmpeg libsm6 libxext6
       - name: Build website
         run: make html
       - name: Build pdf
