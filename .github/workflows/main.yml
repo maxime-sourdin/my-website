@@ -13,11 +13,15 @@ jobs:
         with:
           python-version: "3.10"
       - name: Install dependencies
-        run: pip install -r requirements.txt && apt install -y ffmpeg libsm6 libxext6
+        run: pip install -r requirements.txt
       - name: Build website
         run: make html
-      - name: Build pdf
-        run: python3 generatepdf.py
+      - name: html to pdf
+        uses: fifsky/html-to-pdf-action@master
+        with:
+          htmlFile: ./output/cv.html
+          outputFile: ./output/cv.pdf
+          pdfOptions: '{"format": "A4", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:

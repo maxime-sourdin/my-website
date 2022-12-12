@@ -17,4 +17,3 @@ six
 unidecode
 pelican-sitemap
 pelican-redirect
-PyQt5
