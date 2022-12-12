@@ -17,5 +17,4 @@ six
 unidecode
 pelican-sitemap
 pelican-redirect
-pyqt5-tools
 PyQt5
