@@ -14,14 +14,14 @@ save_as: cv.html
 ### *Orchestration and automation*
 
 - **Containers orchestration**: Docker, Podman, Kubernetes
-- **Automating tests**: Ansible Tower/AWX
-- **Building an infrastructure**: Terraform, Openstack Heat
-- **Managing Kubernetes apps and secrets with GitOPS**: ArgoCD, Hashicorp Vault
-- **Web services: CloudFront**, Traefik, Nginx
-- **Artefact storage**: ECR, Nexus3
-- **Get financial and usage reports**: Kubecost, Infracost
-- **Scripting & Development**: Python, Bash, Powershell, Batch
-- **Providers used**: AWS, FlexibleEngine, OVH, Scaleway
+- **Building virtual machines**: Hashicorp Terraform, Openstack Heat, cloud-init, Hashicorp Packer, Ansible playbooks
+- **GitOPS with secret management**: ArgoCD, Hashicorp Vault
+- **Web services**: CloudFront, Traefik, Nginx, Caddy
+- **Artifacts storage**: ECR, Nexus3
+- **Financial and usage reporting**: Kubecost, Infracost 
+- **Development**: Python
+- **CI/CD & Scripting**: Github Actions, Gitlab CI/CD, Bash, Powershell, Batch
+- **Providers**: AWS, FlexibleEngine, OVH, Scaleway
 
 ### *Monitoring*
 
@@ -57,14 +57,14 @@ save_as: cv.html
 
 # Experience
 
-### <span>Permanent contract: Tech Lead Junior</span>
+### <span>Permanent contract: Cloud engineer</span>
 
 Orange Business Services, <span>**10/2021- Now**</span>
 
 - Improving monitoring system && implementing dashboard provisionning
 - Implementing FinOps solution (Kubecost) with custom dashboards 
 - Working on custom exporters for Flexible Engine, for FinOPS and monitoring
-- Improving script for billing on AWX
+- Improving script to produce bills for AWX
 - Working on network security policies and security policies on Kubernetes
 
 ### <span>Apprenticeship: Cloud specialist</span>
@@ -95,7 +95,7 @@ DGFIP's IT services, <span>**01/2019 - 02/2019**</span>
 Lycée de la Salle, Rennes, <span>**05/2018 - 06/2018**</span>
 
 - System image creation (FOG)
-- Supervision (Zabbix)
+- Supervision solution (Zabbix)
 - Update management (WSUS)
 
 
