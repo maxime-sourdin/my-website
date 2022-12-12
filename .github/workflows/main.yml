@@ -16,11 +16,12 @@ jobs:
         run: pip install -r requirements.txt
       - name: Build website
         run: make html
-      - name: html to pdf        
-        uses: markwilson/html2pdf@v1.0
+      - name: html to pdf
+        uses: LukaszLapaj/html-to-pdf-action@master
         with:
-          htmlPath: 'output/cv.html'
-          pdfName: 'output/cv.pdf'
+          htmlFile: ./output/cv.html
+          outputFile: ./output/cv.pdf
+          pdfOptions: '{"format": "A4", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
