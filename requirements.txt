@@ -16,6 +16,6 @@ rich
 six
 unidecode
 pelican-sitemap
-ghp-import
 pelican-redirect
-gitpython
+pyqt5-tools
+PyQt5

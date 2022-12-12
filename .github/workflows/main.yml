@@ -15,7 +15,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Build website
-        run: make html    
+        run: make html
+      - name: Build pdf
+        run: python3 generatepdf.py
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
